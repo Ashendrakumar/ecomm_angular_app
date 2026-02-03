@@ -5,7 +5,17 @@
       <aside class="col-md-3 mb-4" [class.d-md-block]="showFilters()">
         <div class="card bg-dark-custom">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Filters</h5>
+            <div class="d-flex align-items-center">
+              <h5 class="mb-0">Filters</h5>
+              @if (appliedFiltersCount() > 0) {
+                <span class="badge bg-primary ms-2"
+                  >{{ appliedFiltersCount() }} filter{{
+                    appliedFiltersCount() > 1 ? 's' : ''
+                  }}
+                  applied</span
+                >
+              }
+            </div>
             <button
               class="btn btn-sm btn-outline-secondary d-md-none"
               (click)="toggleFilters()"
@@ -15,6 +25,28 @@
             </button>
           </div>
           <div class="card-body">
+            <!-- Search Input -->
+            <div class="mb-4">
+              <label class="form-label"> Search </label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search products..."
+                [value]="searchInput()"
+                (input)="onSearchInput($event)"
+              />
+            </div>
+
+            <!-- Sort By -->
+            <div class="mb-4">
+              <label class="form-label">Sort By</label>
+              <select class="form-select" [value]="currentSort()" (change)="onSortChange($event)">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="newest">Newest</option>
+              </select>
+            </div>
+
             <!-- Price Range -->
             <div class="mb-4">
               <label class="form-label">Price Range</label>
@@ -85,65 +117,29 @@
     <!-- Main Content -->
     <main [class.col-md-9]="showFilters()" [class.col-12]="!showFilters()">
       <!-- Search and Sort -->
-      <div class="card bg-dark-custom mb-4">
-        <div class="card-body">
-          <div class="row g-3 align-items-end">
-            <div class="col-md-6">
-              <label class="form-label">
-                Search
-                @if (appliedFiltersCount() > 0) {
-                  <span class="badge bg-primary ms-2"
-                    >{{ appliedFiltersCount() }} filter{{
-                      appliedFiltersCount() > 1 ? 's' : ''
-                    }}
-                    applied</span
-                  >
-                }
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search products..."
-                [value]="searchInput()"
-                (input)="onSearchInput($event)"
-              />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Sort By</label>
-              <select class="form-select" [value]="currentSort()" (change)="onSortChange($event)">
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Newest</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary flex-fill" (click)="toggleFilters()">
-                  @if (showFilters()) {
-                    Hide Filters
-                  } @else {
-                    Advanced Filters
-                  }
-                </button>
-                <button class="btn btn-primary flex-fill" (click)="clearFilters()">Reset</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Results Count -->
-      <div class="mb-3">
+      <div class="mb-3 d-flex justify-content-between align-items-center">
         <p class="text-muted">Showing {{ products().length }} of {{ totalProducts() }} products</p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary flex-fill" (click)="toggleFilters()">
+            @if (showFilters()) {
+              Hide Filters
+            } @else {
+              Show Filters
+            }
+          </button>
+          @if (appliedFiltersCount() > 0) {
+            <button class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">
+              Reset
+            </button>
+          }
+        </div>
       </div>
 
-      <!-- Loading State -->
-      @if (isLoading()) {
-        <div class="text-center py-5">
-          <div class="spinner-border text-gold" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
+      <!-- Skeleton loader (initial load) -->
+      @if (isLoading() && products().length === 0) {
+        <app-skeleton-loader [skeletonCount]="12" />
       }
 
       <!-- Products Grid -->
@@ -159,9 +155,10 @@
         <!-- Infinite Scroll Trigger -->
         @if (hasMore()) {
           <div #scrollTrigger class="text-center py-4">
-            <div class="spinner-border text-gold" role="status">
+            <!-- <div class="spinner-border text-gold" role="status">
               <span class="visually-hidden">Loading more...</span>
-            </div>
+            </div> -->
+            <app-skeleton-loader [skeletonCount]="8" />
           </div>
         }
       }

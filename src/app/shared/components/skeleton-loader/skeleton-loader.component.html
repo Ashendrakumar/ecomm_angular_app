@@ -1,0 +1,20 @@
+<div class="row g-4">
+  @for (s of skeletonItems; track s) {
+    <div class="col-md-4 col-lg-3">
+      <div class="card h-100 skeleton-card">
+        <div class="skeleton skeleton-image card-img-top"></div>
+        <div class="card-body d-flex flex-column gap-2">
+          <div class="d-flex justify-content-between">
+            <div class="flex-grow-1">
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-text mt-2"></div>
+            </div>
+          </div>
+          <div class="mt-auto">
+            <div class="skeleton skeleton-price"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

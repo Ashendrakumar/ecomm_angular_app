@@ -1,26 +1,47 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Router } from 'express';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { Product, ProductFilters, ProductSortOption } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
-import { ProductCard } from "../../../shared/components/product-card/product-card";
-import { CommonModule } from '@angular/common';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-product-listing',
-  imports: [CommonModule, FormsModule, RouterModule, ProductCard],
+  imports: [CommonModule, FormsModule, RouterModule, ProductCard, SkeletonLoaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-listing.html',
   styleUrl: './product-listing.scss',
 })
 export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly productService = inject(ProductService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
   private readonly destroy$ = new Subject<void>();
   private readonly searchSubject = new Subject<string>();
+  /** Emits when a load is requested; switchMap cancels in-flight requests on rapid filter/sort changes */
+  private readonly loadRequest$ = new Subject<{
+    page: number;
+    filters: ProductFilters;
+    sort: ProductSortOption;
+  }>();
 
   // State signals
   private readonly _products = signal<Product[]>([]);
@@ -68,21 +89,48 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     // Load brands
-    this.productService.getBrands().subscribe(brands => {
+    this.productService.getBrands().subscribe((brands) => {
       this.availableBrands.set(brands);
     });
+
+    // Single stream for product loads: cancels previous request when filter/sort/page changes rapidly
+    this.loadRequest$
+      .pipe(
+        switchMap(({ page, filters, sort }) => {
+          return this.productService.getProducts(page, 12, filters, sort);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.page === 1) {
+            this._products.set(response.products);
+          } else {
+            this._products.update((products) => [...products, ...response.products]);
+          }
+          this._totalProducts.set(response.total);
+          this._hasMore.set(response.hasMore);
+          this._isLoading.set(false);
+          this.updateUrl();
+          if (response.hasMore) {
+            this.observeScrollTriggerSoon();
+          }
+        },
+        error: () => {
+          this._isLoading.set(false);
+        },
+      });
 
     // Initialize from URL query params
     this.initializeFromQueryParams();
 
     // Watch for query param changes
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.updateFromQueryParams(params);
     });
 
     // Setup debounced search
     this.setupSearch();
-
   }
 
   ngAfterViewInit(): void {
@@ -130,9 +178,11 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const sort = (params['sort'] as ProductSortOption) || 'newest';
+    const isFilterActive = params['isFilterActive'] === 'true';
 
     this._filters.set(filters);
     this._currentSort.set(sort);
+    this._showFilters.set(isFilterActive);
     this._currentPage.set(1);
     this._products.set([]);
 
@@ -147,16 +197,16 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap(search => {
+        switchMap((search) => {
           const filters = { ...this._filters(), search: search || undefined };
           this._filters.set(filters);
           this._currentPage.set(1);
           this._products.set([]);
           return this.productService.getProducts(1, 12, filters, this._currentSort());
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
-      .subscribe(response => {
+      .subscribe((response) => {
         this._products.set(response.products);
         this._totalProducts.set(response.total);
         this._hasMore.set(response.hasMore);
@@ -169,24 +219,22 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
    * Setup infinite scroll using IntersectionObserver
    */
   private setupInfiniteScroll(): void {
-    if (typeof window === 'undefined') {
-      return; // SSR guard
-    }
+    if (!this.isBrowser) return;
 
     this.observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && this._hasMore() && !this._isLoading()) {
+      ([entry]) => {
+        if (entry.isIntersecting && this._hasMore() && !this._isLoading()) {
           this.loadMore();
         }
       },
       {
-        threshold: 0.1,
-        // start fetching a bit earlier so it feels instant
-        rootMargin: '300px 0px 300px 0px'
-      }
+        threshold: 0,
+        // 🔥 Trigger only after 50% of viewport height is crossed
+        rootMargin: '-50% 0px 0px 0px',
+      },
     );
 
-    this.observeScrollTriggerSoon();
+    this.observeScrollTrigger();
   }
 
   /**
@@ -208,7 +256,9 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
     if (this.lastObservedTrigger && this.lastObservedTrigger !== el) {
       try {
         this.observer.unobserve(this.lastObservedTrigger);
-      } catch { /* no-op */ }
+      } catch {
+        /* no-op */
+      }
     }
 
     this.lastObservedTrigger = el;
@@ -216,33 +266,16 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Load products with current filters and sort
+   * Load products with current filters and sort.
+   * Uses loadRequest$ + switchMap so rapid filter/sort changes cancel in-flight API calls.
    */
   private loadProducts(): void {
     this._isLoading.set(true);
-
-    this.productService
-      .getProducts(this._currentPage(), 12, this._filters(), this._currentSort())
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: response => {
-          if (this._currentPage() === 1) {
-            this._products.set(response.products);
-          } else {
-            this._products.update(products => [...products, ...response.products]);
-          }
-          this._totalProducts.set(response.total);
-          this._hasMore.set(response.hasMore);
-          this._isLoading.set(false);
-          this.updateUrl();
-          if (response.hasMore) {
-            this.observeScrollTriggerSoon();
-          }
-        },
-        error: () => {
-          this._isLoading.set(false);
-        }
-      });
+    this.loadRequest$.next({
+      page: this._currentPage(),
+      filters: this._filters(),
+      sort: this._currentSort(),
+    });
   }
 
   /**
@@ -253,7 +286,7 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this._currentPage.update(page => page + 1);
+    this._currentPage.update((page) => page + 1);
     this.loadProducts();
   }
 
@@ -281,11 +314,12 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
     if (this._currentSort() !== 'newest') {
       queryParams['sort'] = this._currentSort();
     }
+    queryParams['isFilterActive'] = this._showFilters() ? 'true' : 'false';
 
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
-      replaceUrl: true // Don't create new history entry
+      replaceUrl: true, // Don't create new history entry
     });
   }
 
@@ -293,7 +327,7 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   onPriceMinChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     const minPrice = value ? Number(value) : undefined;
-    this._filters.update(f => ({ ...f, minPrice }));
+    this._filters.update((f) => ({ ...f, minPrice }));
     this._currentPage.set(1);
     this._products.set([]);
     this.loadProducts();
@@ -302,7 +336,7 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   onPriceMaxChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     const maxPrice = value ? Number(value) : undefined;
-    this._filters.update(f => ({ ...f, maxPrice }));
+    this._filters.update((f) => ({ ...f, maxPrice }));
     this._currentPage.set(1);
     this._products.set([]);
     this.loadProducts();
@@ -311,11 +345,9 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   onBrandToggle(brand: string, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     const currentBrands = this._filters().brands || [];
-    const brands = checked
-      ? [...currentBrands, brand]
-      : currentBrands.filter(b => b !== brand);
+    const brands = checked ? [...currentBrands, brand] : currentBrands.filter((b) => b !== brand);
 
-    this._filters.update(f => ({ ...f, brands: brands.length > 0 ? brands : undefined }));
+    this._filters.update((f) => ({ ...f, brands: brands.length > 0 ? brands : undefined }));
     this._currentPage.set(1);
     this._products.set([]);
     this.loadProducts();
@@ -323,7 +355,7 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
 
   onInStockToggle(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    this._filters.update(f => ({ ...f, inStockOnly: checked || undefined }));
+    this._filters.update((f) => ({ ...f, inStockOnly: checked || undefined }));
     this._currentPage.set(1);
     this._products.set([]);
     this.loadProducts();
@@ -345,18 +377,21 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearFilters(): void {
+    if (this.appliedFiltersCount() === 0) return; // No-op if no filters applied
     this._filters.set({});
     this._currentSort.set('newest');
     this._searchInput.set('');
     this._currentPage.set(1);
     this._products.set([]);
     this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+    this.loadProducts();
   }
 
   /**
-   * Toggle filters panel visibility
+   * Toggle filters panel visibility and sync isFilterActive to URL
    */
   toggleFilters(): void {
-    this._showFilters.update(value => !value);
+    this._showFilters.update((value) => !value);
+    this.updateUrl();
   }
 }

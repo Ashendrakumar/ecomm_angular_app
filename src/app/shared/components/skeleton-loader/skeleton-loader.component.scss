@@ -1,0 +1,45 @@
+/* Skeleton loader */
+.skeleton-card {
+  overflow: hidden;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-image {
+  height: 150px;
+  width: 100%;
+}
+
+.skeleton-title {
+  height: 1.25rem;
+  width: 75%;
+}
+
+.skeleton-text {
+  height: 0.875rem;
+  width: 50%;
+}
+
+.skeleton-price {
+  height: 1.5rem;
+  width: 40%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
