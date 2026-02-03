@@ -7,7 +7,7 @@ import { User, AuthState } from '../models/user.model';
  * In production, this would integrate with a real auth system
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly _user = signal<User | null>(null);
@@ -21,7 +21,7 @@ export class AuthService {
 
   readonly authState = computed<AuthState>(() => ({
     user: this._user(),
-    isAuthenticated: this.isAuthenticated()
+    isAuthenticated: this.isAuthenticated(),
   }));
 
   /**
@@ -32,7 +32,7 @@ export class AuthService {
     const user: User = {
       id: '1',
       email,
-      name: email.split('@')[0]
+      name: email.split('@')[0],
     };
 
     return of(user).pipe(

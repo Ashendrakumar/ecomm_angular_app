@@ -123,6 +123,13 @@ export class Cart {
   }
 
   /**
+   * Dismiss the last error message
+   */
+  dismissError(): void {
+    this.cartService.dismissError();
+  }
+
+  /**
    * Proceed to checkout
    */
   checkout(): void {

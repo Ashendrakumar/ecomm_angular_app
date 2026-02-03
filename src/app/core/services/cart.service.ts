@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, effect, inject, PLATFORM_ID } from '@angular/core';
-import { Observable, of, delay, throwError, finalize } from 'rxjs';
-import { CartItem, Cart, CartUpdateRequest } from '../models/cart.model';
+import { Observable, of, delay, throwError, finalize, catchError } from 'rxjs';
+import { CartItem, Cart } from '../models/cart.model';
 import { Product } from '../models/product.model';
 import { AuthService } from './auth.service';
 import { isPlatformBrowser } from '@angular/common';
@@ -28,6 +28,9 @@ export class CartService {
   readonly cartItems = this._cartItems.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly lastError = this._lastError.asReadonly();
+
+  /** Whether the user is logged in (cart stored via backend vs localStorage). */
+  readonly isAuthenticated = this.authService.isAuthenticated;
 
   // Computed signals
   readonly cartTotal = computed(() => {
@@ -139,11 +142,11 @@ export class CartService {
   }
 
   /**
-   * Update cart item quantity
+   * Update cart item quantity.
+   * Optimistic UI: updates immediately; rolls back and sets lastError if backend rejects (e.g. stock).
    */
   updateQuantity(itemId: string, quantity: number): Observable<CartItem> {
     if (quantity <= 0) {
-      // Don't allow zero or negative quantities - caller should use removeItem instead
       return throwError(
         () => new Error('Quantity must be greater than 0. Use removeItem to remove items.'),
       );
@@ -152,45 +155,71 @@ export class CartService {
     this._isLoading.set(true);
     this._lastError.set(null);
 
-    // Optimistic update
-    const currentItems = this._cartItems();
-    const itemIndex = currentItems.findIndex((item) => item.id === itemId);
+    const previousItems = [...this._cartItems()];
+    const itemIndex = previousItems.findIndex((item) => item.id === itemId);
 
     if (itemIndex === -1) {
       this._isLoading.set(false);
       return throwError(() => new Error('Item not found in cart'));
     }
 
-    const item = currentItems[itemIndex];
-    const updatedItems = [...currentItems];
+    const item = previousItems[itemIndex];
+    const updatedItems = [...previousItems];
     updatedItems[itemIndex] = { ...item, quantity };
 
+    // Optimistic update
     this._cartItems.set(updatedItems);
 
-    // Simulate API call with potential stock check
-    return of(updatedItems[itemIndex]).pipe(
+    // Simulate API: reject if quantity exceeds "stock" (e.g. > 99) so we can test rollback
+    const simulateReject = quantity > 99;
+    const response$ = simulateReject
+      ? throwError(() => new Error('STOCK_EXCEEDED'))
+      : of(updatedItems[itemIndex]);
+
+    return response$.pipe(
       delay(this.API_DELAY),
+      catchError((err) => {
+        this._cartItems.set(previousItems);
+        this._lastError.set(
+          err?.message === 'STOCK_EXCEEDED'
+            ? 'Quantity reduced: maximum available stock reached.'
+            : 'Could not update quantity. Please try again.',
+        );
+        return throwError(() => err);
+      }),
       finalize(() => this._isLoading.set(false)),
-      // In production, check stock and rollback if needed
     ) as Observable<CartItem>;
   }
 
   /**
-   * Remove item from cart
+   * Remove item from cart.
+   * Optimistic UI: removes immediately; rolls back and sets lastError if backend rejects.
    */
   removeItem(itemId: string): Observable<void> {
     this._isLoading.set(true);
     this._lastError.set(null);
 
-    // Optimistic update
-    const updatedItems = this._cartItems().filter((item) => item.id !== itemId);
+    const previousItems = [...this._cartItems()];
+    const updatedItems = previousItems.filter((item) => item.id !== itemId);
+
     this._cartItems.set(updatedItems);
 
-    // Simulate API call
     return of(void 0).pipe(
       delay(this.API_DELAY),
+      catchError((err) => {
+        this._cartItems.set(previousItems);
+        this._lastError.set('Could not remove item. Please try again.');
+        return throwError(() => err);
+      }),
       finalize(() => this._isLoading.set(false)),
     );
+  }
+
+  /**
+   * Clear the last error message (e.g. after rollback notice).
+   */
+  dismissError(): void {
+    this._lastError.set(null);
   }
 
   /**
