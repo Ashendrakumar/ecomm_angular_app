@@ -1,19 +1,12 @@
-import { Component, computed, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { CartService } from './core/services/cart.service';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
+import { Navbar } from './shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LoadingSpinnerComponent],
+  imports: [RouterOutlet, LoadingSpinnerComponent, Navbar],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
-  private readonly cartService = inject(CartService);
-  
-  // Computed signal for cart item count
-  protected readonly cartItemCount = computed(() => {
-    return this.cartService.cartItemCount();
-  });
-}
+export class App { }

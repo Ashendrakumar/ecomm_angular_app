@@ -34,8 +34,8 @@ import { LoadingService } from '../../../core/services/loading.service';
     }
 
     .spinner-border {
-      width: 3rem;
-      height: 3rem;
+      width: 4rem;
+      height: 4rem;
     }
   `]
 })

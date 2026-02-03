@@ -1,28 +1,36 @@
 import { Routes } from '@angular/router';
 import { ProductDetail } from './features/pdp/product-detail/product-detail';
 import { Cart } from './features/cart/cart';
+import { ProductListing } from './features/plp/product-listing/product-listing';
 import { ProductListingComponent } from './features/plp/product-listing.component';
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: '/products',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    title: 'Products | E-Commerce'
   },
   {
     path: 'products',
-    component: ProductListingComponent
+    component: ProductListingComponent,
+    title: 'Products | E-Commerce'
+
   },
   {
     path: 'products/:id',
-    component: ProductDetail
+    component: ProductDetail,
+    title: 'Product Detail | E-Commerce'
   },
   {
     path: 'cart',
-    component: Cart
+    component: Cart,
+    title: 'Cart | E-Commerce'
+
   },
   {
     path: '**',
-    redirectTo: '/products'
+    redirectTo: '/products',
+    title: 'Products | E-Commerce'
   }
 ];

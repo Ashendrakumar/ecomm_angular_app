@@ -5,6 +5,17 @@
     border-color 0.18s ease;
   cursor: pointer;
   border: 1px solid var(--medium-gray);
+  .card-img-top {
+    border-radius: 16px 16px 0 0;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+  }
+  .card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: unset;
+  }
 }
 
 .card:hover {

@@ -1,1 +1,177 @@
-<p>product-listing works!</p>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Filters Sidebar -->
+    @if (showFilters()) {
+      <aside class="col-md-3 mb-4" [class.d-md-block]="showFilters()">
+        <div class="card bg-dark-custom">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Filters</h5>
+            <button
+              class="btn btn-sm btn-outline-secondary d-md-none"
+              (click)="toggleFilters()"
+              aria-label="Close filters"
+            >
+              ×
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Price Range -->
+            <div class="mb-4">
+              <label class="form-label">Price Range</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Min"
+                    [value]="filters().minPrice || ''"
+                    (input)="onPriceMinChange($event)"
+                  />
+                </div>
+                <div class="col-6">
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Max"
+                    [value]="filters().maxPrice || ''"
+                    (input)="onPriceMaxChange($event)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Brand Filter -->
+            <div class="mb-4">
+              <label class="form-label">Brand</label>
+              @for (brand of availableBrands(); track brand) {
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'brand-' + brand"
+                    [checked]="filters().brands?.includes(brand)"
+                    (change)="onBrandToggle(brand, $event)"
+                  />
+                  <label class="form-check-label" [for]="'brand-' + brand">
+                    {{ brand }}
+                  </label>
+                </div>
+              }
+            </div>
+
+            <!-- In Stock Only -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="inStockOnly"
+                  [checked]="filters().inStockOnly"
+                  (change)="onInStockToggle($event)"
+                />
+                <label class="form-check-label" for="inStockOnly"> In Stock Only </label>
+              </div>
+            </div>
+
+            <!-- Clear Filters -->
+            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </aside>
+    }
+
+    <!-- Main Content -->
+    <main [class.col-md-9]="showFilters()" [class.col-12]="!showFilters()">
+      <!-- Search and Sort -->
+      <div class="card bg-dark-custom mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label">
+                Search
+                @if (appliedFiltersCount() > 0) {
+                  <span class="badge bg-primary ms-2"
+                    >{{ appliedFiltersCount() }} filter{{
+                      appliedFiltersCount() > 1 ? 's' : ''
+                    }}
+                    applied</span
+                  >
+                }
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search products..."
+                [value]="searchInput()"
+                (input)="onSearchInput($event)"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Sort By</label>
+              <select class="form-select" [value]="currentSort()" (change)="onSortChange($event)">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="newest">Newest</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary flex-fill" (click)="toggleFilters()">
+                  @if (showFilters()) {
+                    Hide Filters
+                  } @else {
+                    Advanced Filters
+                  }
+                </button>
+                <button class="btn btn-primary flex-fill" (click)="clearFilters()">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Count -->
+      <div class="mb-3">
+        <p class="text-muted">Showing {{ products().length }} of {{ totalProducts() }} products</p>
+      </div>
+
+      <!-- Loading State -->
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-gold" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      }
+
+      <!-- Products Grid -->
+      @if (!isLoading() && products().length > 0) {
+        <div class="row g-4">
+          @for (product of products(); track product.id) {
+            <div class="col-md-4 col-lg-3">
+              <app-product-card [product]="product" />
+            </div>
+          }
+        </div>
+
+        <!-- Infinite Scroll Trigger -->
+        @if (hasMore()) {
+          <div #scrollTrigger class="text-center py-4">
+            <div class="spinner-border text-gold" role="status">
+              <span class="visually-hidden">Loading more...</span>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!isLoading() && products().length === 0) {
+        <div class="text-center py-5">
+          <p class="text-muted">No products found. Try adjusting your filters.</p>
+        </div>
+      }
+    </main>
+  </div>
+</div>

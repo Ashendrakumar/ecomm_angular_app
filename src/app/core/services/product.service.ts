@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, of } from 'rxjs';
-import { Product, ProductListResponse, ProductFilters, ProductSortOption } from '../models/product.model';
+import {
+  Product,
+  ProductListResponse,
+  ProductFilters,
+  ProductSortOption,
+} from '../models/product.model';
 import { MOCK_PRODUCTS } from '../data/mock-products';
 
 /**
@@ -9,11 +14,11 @@ import { MOCK_PRODUCTS } from '../data/mock-products';
  * In production, this would make real HTTP calls
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly API_DELAY = 500; // Simulate network delay
+  private readonly API_DELAY = 100; // Simulate network delay
 
   /**
    * Get products with filters, sorting, and pagination
@@ -22,18 +27,19 @@ export class ProductService {
     page: number = 1,
     pageSize: number = 12,
     filters?: ProductFilters,
-    sort?: ProductSortOption
+    sort?: ProductSortOption,
   ): Observable<ProductListResponse> {
     // Simulate API call with delay
-    return of(this.filterAndSortProducts(MOCK_PRODUCTS, filters, sort, page, pageSize))
-      .pipe(delay(this.API_DELAY));
+    return of(this.filterAndSortProducts(MOCK_PRODUCTS, filters, sort, page, pageSize)).pipe(
+      delay(this.API_DELAY),
+    );
   }
 
   /**
    * Get a single product by ID
    */
   getProductById(id: string): Observable<Product | null> {
-    const product = MOCK_PRODUCTS.find(p => p.id === id);
+    const product = MOCK_PRODUCTS.find((p) => p.id === id);
     return of(product || null).pipe(delay(this.API_DELAY));
   }
 
@@ -41,8 +47,8 @@ export class ProductService {
    * Get all unique brands from products
    */
   getBrands(): Observable<string[]> {
-    const brands = [...new Set(MOCK_PRODUCTS.map(p => p.brand))].sort();
-    return of(brands).pipe(delay(100));
+    const brands = [...new Set(MOCK_PRODUCTS.map((p) => p.brand))].sort();
+    return of(brands).pipe(delay(this.API_DELAY));
   }
 
   /**
@@ -53,31 +59,31 @@ export class ProductService {
     filters?: ProductFilters,
     sort?: ProductSortOption,
     page: number = 1,
-    pageSize: number = 12
+    pageSize: number = 12,
   ): ProductListResponse {
     let filtered = [...products];
 
     // Apply filters
     if (filters) {
       if (filters.minPrice !== undefined) {
-        filtered = filtered.filter(p => p.price >= filters.minPrice!);
+        filtered = filtered.filter((p) => p.price >= filters.minPrice!);
       }
       if (filters.maxPrice !== undefined) {
-        filtered = filtered.filter(p => p.price <= filters.maxPrice!);
+        filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
       }
       if (filters.brands && filters.brands.length > 0) {
-        filtered = filtered.filter(p => filters.brands!.includes(p.brand));
+        filtered = filtered.filter((p) => filters.brands!.includes(p.brand));
       }
       if (filters.inStockOnly) {
-        filtered = filtered.filter(p => p.inStock);
+        filtered = filtered.filter((p) => p.inStock);
       }
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
         filtered = filtered.filter(
-          p =>
+          (p) =>
             p.name.toLowerCase().includes(searchLower) ||
             p.description.toLowerCase().includes(searchLower) ||
-            p.brand.toLowerCase().includes(searchLower)
+            p.brand.toLowerCase().includes(searchLower),
         );
       }
     }
@@ -92,7 +98,9 @@ export class ProductService {
           filtered.sort((a, b) => b.price - a.price);
           break;
         case 'newest':
-          filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          filtered.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
           break;
       }
     }
@@ -108,7 +116,7 @@ export class ProductService {
       total,
       page,
       pageSize,
-      hasMore: endIndex < total
+      hasMore: endIndex < total,
     };
   }
 }
