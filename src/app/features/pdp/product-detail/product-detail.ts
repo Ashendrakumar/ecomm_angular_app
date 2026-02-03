@@ -45,7 +45,7 @@ export class ProductDetail {
     const selectedVariants = this._selectedVariants();
 
     // Add variant price modifiers
-    selectedVariants.forEach(option => {
+    selectedVariants.forEach((option) => {
       if (option.priceModifier) {
         price += option.priceModifier;
       }
@@ -57,7 +57,9 @@ export class ProductDetail {
   readonly discountPercentage = computed(() => {
     const product = this._product();
     if (!product || !product.originalPrice) return 0;
-    return Math.round(((product.originalPrice - this.currentPrice()) / product.originalPrice) * 100);
+    return Math.round(
+      ((product.originalPrice - this.currentPrice()) / product.originalPrice) * 100,
+    );
   });
 
   readonly currentStockQuantity = computed(() => {
@@ -69,7 +71,7 @@ export class ProductDetail {
     // If variants are selected, get stock from selected variant option
     if (selectedVariants.size > 0) {
       let minStock = Infinity;
-      selectedVariants.forEach(option => {
+      selectedVariants.forEach((option) => {
         if (option.stockQuantity < minStock) {
           minStock = option.stockQuantity;
         }
@@ -91,8 +93,8 @@ export class ProductDetail {
     // Check if all required variants are selected
     if (product.variants && product.variants.length > 0) {
       const selectedVariants = this._selectedVariants();
-      const allVariantsSelected = product.variants.every(variant =>
-        selectedVariants.has(variant.id)
+      const allVariantsSelected = product.variants.every((variant) =>
+        selectedVariants.has(variant.id),
       );
       if (!allVariantsSelected) return false;
     }
@@ -113,7 +115,7 @@ export class ProductDetail {
   private loadProduct(id: string): void {
     this._isLoading.set(true);
     this.productService.getProductById(id).subscribe({
-      next: product => {
+      next: (product) => {
         this._product.set(product);
         this._isLoading.set(false);
 
@@ -125,8 +127,8 @@ export class ProductDetail {
         // Auto-select first available variant options
         if (product && product.variants) {
           const defaultVariants = new Map<string, VariantOption>();
-          product.variants.forEach(variant => {
-            const firstAvailable = variant.options.find(opt => opt.inStock);
+          product.variants.forEach((variant) => {
+            const firstAvailable = variant.options.find((opt) => opt.inStock);
             if (firstAvailable) {
               defaultVariants.set(variant.id, firstAvailable);
               // Update image if variant has specific image
@@ -140,7 +142,7 @@ export class ProductDetail {
       },
       error: () => {
         this._isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -186,7 +188,7 @@ export class ProductDetail {
   increaseQuantity(): void {
     const max = this.currentStockQuantity();
     if (this._quantity() < max) {
-      this._quantity.update(q => q + 1);
+      this._quantity.update((q) => q + 1);
     }
   }
 
@@ -195,7 +197,7 @@ export class ProductDetail {
    */
   decreaseQuantity(): void {
     if (this._quantity() > 1) {
-      this._quantity.update(q => q - 1);
+      this._quantity.update((q) => q - 1);
     }
   }
 
@@ -234,12 +236,14 @@ export class ProductDetail {
     this._isAddingToCart.set(true);
 
     // Convert selected variants to cart format
-    const selectedVariants = Array.from(this._selectedVariants().entries()).map(([variantId, option]) => ({
-      variantId,
-      variantName: product.variants?.find(v => v.id === variantId)?.name || '',
-      optionId: option.id,
-      optionValue: option.value
-    }));
+    const selectedVariants = Array.from(this._selectedVariants().entries()).map(
+      ([variantId, option]) => ({
+        variantId,
+        variantName: product.variants?.find((v) => v.id === variantId)?.name || '',
+        optionId: option.id,
+        optionValue: option.value,
+      }),
+    );
 
     this.cartService.addToCart(product, this._quantity(), selectedVariants).subscribe({
       next: () => {
@@ -250,7 +254,7 @@ export class ProductDetail {
       error: () => {
         this._isAddingToCart.set(false);
         // Handle error (show message, rollback, etc.)
-      }
+      },
     });
   }
 

@@ -35,7 +35,17 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
           <aside class="col-md-3 mb-4" [class.d-md-block]="showFilters()">
             <div class="card bg-dark-custom">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Filters</h5>
+                <div class="d-flex align-items-center">
+                  <h5 class="mb-0">Filters</h5>
+                  @if (appliedFiltersCount() > 0) {
+                    <span class="badge bg-primary ms-2"
+                      >{{ appliedFiltersCount() }} filter{{
+                        appliedFiltersCount() > 1 ? 's' : ''
+                      }}
+                      applied</span
+                    >
+                  }
+                </div>
                 <button
                   class="btn btn-sm btn-outline-secondary d-md-none"
                   (click)="toggleFilters()"
@@ -47,17 +57,7 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
               <div class="card-body">
                 <!-- Search Input -->
                 <div class="mb-4">
-                  <label class="form-label">
-                    Search
-                    @if (appliedFiltersCount() > 0) {
-                      <span class="badge bg-primary ms-2"
-                        >{{ appliedFiltersCount() }} filter{{
-                          appliedFiltersCount() > 1 ? 's' : ''
-                        }}
-                        applied</span
-                      >
-                    }
-                  </label>
+                  <label class="form-label"> Search </label>
                   <input
                     type="text"
                     class="form-control"
@@ -140,7 +140,7 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
                 </div>
 
                 <!-- Clear Filters -->
-                <button class="btn btn-outline-primary w-100" (click)="clearFilters()">
+                <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
                   Clear Filters
                 </button>
               </div>
@@ -158,16 +158,18 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
               Showing {{ products().length }} of {{ totalProducts() }} products
             </p>
             <div class="d-flex gap-2">
-              <button class="btn btn-outline-primary flex-fill" (click)="toggleFilters()">
+              <button class="btn btn-primary flex-fill" (click)="toggleFilters()">
                 @if (showFilters()) {
                   Hide Filters
                 } @else {
-                  Advanced Filters
+                  Show Filters
                 }
               </button>
-              <div>
-                <button class="btn btn-primary flex-fill" (click)="clearFilters()">Reset</button>
-              </div>
+              @if (appliedFiltersCount() > 0) {
+                <button class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">
+                  Reset
+                </button>
+              }
             </div>
           </div>
 
@@ -550,12 +552,14 @@ export class ProductListingComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   clearFilters(): void {
+    if (this.appliedFiltersCount() === 0) return; // No-op if no filters applied
     this._filters.set({});
     this._currentSort.set('newest');
     this._searchInput.set('');
     this._currentPage.set(1);
     this._products.set([]);
     this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+    this.loadProducts();
   }
 
   /**

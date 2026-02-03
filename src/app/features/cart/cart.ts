@@ -18,7 +18,6 @@ export class Cart {
   private readonly _updatingItems = signal<Set<string>>(new Set());
   private readonly _removingItems = signal<Set<string>>(new Set());
 
-
   // Public readonly signals
   readonly cartItems = this.cartService.cartItems;
   readonly updatingItems = this._updatingItems.asReadonly();
@@ -47,11 +46,11 @@ export class Cart {
       return;
     }
 
-    this._updatingItems.update(items => new Set(items).add(itemId));
+    this._updatingItems.update((items) => new Set(items).add(itemId));
 
     this.cartService.updateQuantity(itemId, quantity).subscribe({
       next: () => {
-        this._updatingItems.update(items => {
+        this._updatingItems.update((items) => {
           const newSet = new Set(items);
           newSet.delete(itemId);
           return newSet;
@@ -59,12 +58,12 @@ export class Cart {
       },
       error: () => {
         // Rollback on error - the service handles optimistic updates
-        this._updatingItems.update(items => {
+        this._updatingItems.update((items) => {
           const newSet = new Set(items);
           newSet.delete(itemId);
           return newSet;
         });
-      }
+      },
     });
   }
 
@@ -82,23 +81,23 @@ export class Cart {
    * Remove item from cart
    */
   removeItem(itemId: string): void {
-    this._removingItems.update(items => new Set(items).add(itemId));
+    this._removingItems.update((items) => new Set(items).add(itemId));
 
     this.cartService.removeItem(itemId).subscribe({
       next: () => {
-        this._removingItems.update(items => {
+        this._removingItems.update((items) => {
           const newSet = new Set(items);
           newSet.delete(itemId);
           return newSet;
         });
       },
       error: () => {
-        this._removingItems.update(items => {
+        this._removingItems.update((items) => {
           const newSet = new Set(items);
           newSet.delete(itemId);
           return newSet;
         });
-      }
+      },
     });
   }
 

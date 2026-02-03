@@ -61,6 +61,13 @@ body {
   border-color: var(--accent-gold);
   color: var(--primary-black);
 
+  &:disabled {
+    opacity: 0.5;
+    background-color: var(--accent-gold);
+    border-color: var(--accent-gold);
+    color: var(--primary-black);
+  }
+
   &:hover,
   &:focus,
   &:active {
@@ -72,6 +79,11 @@ body {
 .btn-outline-primary {
   color: var(--accent-gold);
   border-color: var(--accent-gold);
+  &:disabled {
+    opacity: 0.5;
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+  }
   &:hover,
   &:focus,
   &:active {
@@ -278,6 +290,9 @@ small {
   background-color: var(--medium-gray);
   border-bottom-color: var(--medium-gray);
   color: var(--primary-white);
+  border-radius: 16px 16px 0 0 !important;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 
   h5,
   h4,
