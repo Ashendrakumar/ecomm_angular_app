@@ -124,8 +124,10 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
     // Initialize from URL query params
     this.initializeFromQueryParams();
 
-    // Watch for query param changes
+    // Watch for query param changes (e.g. browser back). Skip when params match our
+    // current state so that updateUrl() doesn't cause a reset and scroll jump.
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      if (this.queryParamsEqualCurrentState(params)) return;
       this.updateFromQueryParams(params);
     });
 
@@ -243,7 +245,7 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
    * so it may not exist yet during the first ngAfterViewInit, and it changes as we append items.
    */
   private observeScrollTriggerSoon(): void {
-    if (typeof window === 'undefined') return;
+    if (!this.isBrowser) return;
     setTimeout(() => this.observeScrollTrigger(), 0);
   }
 
@@ -291,31 +293,49 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Build query params from current state (same shape as updateUrl).
+   */
+  private getCurrentQueryParams(): Record<string, string | number | string[] | undefined> {
+    const f = this._filters();
+    const params: Record<string, string | number | string[] | undefined> = {};
+    if (f.minPrice != null) params['minPrice'] = f.minPrice;
+    if (f.maxPrice != null) params['maxPrice'] = f.maxPrice;
+    if (f.brands?.length) params['brands'] = f.brands;
+    if (f.inStockOnly) params['inStockOnly'] = 'true';
+    if (f.search) params['search'] = f.search;
+    if (this._currentSort() !== 'newest') params['sort'] = this._currentSort();
+    params['isFilterActive'] = this._showFilters() ? 'true' : 'false';
+    return params;
+  }
+
+  private static paramEqual(a: unknown, b: unknown): boolean {
+    if (Array.isArray(a) && !Array.isArray(b)) return a.length === 1 && a[0] === b;
+    if (!Array.isArray(a) && Array.isArray(b)) return b.length === 1 && b[0] === a;
+    if (Array.isArray(a) && Array.isArray(b))
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    const sa = a === undefined || a === null ? '' : String(a);
+    const sb = b === undefined || b === null ? '' : String(b);
+    return sa === sb;
+  }
+
+  /**
+   * Return true if the given route params match current state (so we can skip
+   * updateFromQueryParams and avoid resetting list / scroll when we caused the navigation).
+   */
+  private queryParamsEqualCurrentState(params: Record<string, any>): boolean {
+    const current = this.getCurrentQueryParams();
+    const keys = new Set([...Object.keys(current), ...Object.keys(params)]);
+    for (const k of keys) {
+      if (!ProductListing.paramEqual(current[k], params[k])) return false;
+    }
+    return true;
+  }
+
+  /**
    * Update URL query params to reflect current state
    */
   private updateUrl(): void {
-    const queryParams: Record<string, any> = {};
-
-    if (this._filters().minPrice) {
-      queryParams['minPrice'] = this._filters().minPrice;
-    }
-    if (this._filters().maxPrice) {
-      queryParams['maxPrice'] = this._filters().maxPrice;
-    }
-    if (this._filters().brands && this._filters().brands!.length > 0) {
-      queryParams['brands'] = this._filters().brands;
-    }
-    if (this._filters().inStockOnly) {
-      queryParams['inStockOnly'] = 'true';
-    }
-    if (this._filters().search) {
-      queryParams['search'] = this._filters().search;
-    }
-    if (this._currentSort() !== 'newest') {
-      queryParams['sort'] = this._currentSort();
-    }
-    queryParams['isFilterActive'] = this._showFilters() ? 'true' : 'false';
-
+    const queryParams = this.getCurrentQueryParams();
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
