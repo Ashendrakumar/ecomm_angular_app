@@ -1,0 +1,18 @@
+.img-thumbnail.active {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 0.15rem rgba(218, 165, 32, 0.25);
+}
+
+.btn-link {
+  color: var(--accent-gold);
+}
+
+.btn-link:hover {
+  color: var(--secondary-dark-yellow);
+}
+
+/* Keep long descriptions readable */
+p {
+  line-height: 1.55;
+}
+

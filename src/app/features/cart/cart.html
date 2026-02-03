@@ -1,0 +1,141 @@
+<div class="container">
+  <h1 class="mb-4">Shopping Cart</h1>
+
+  @if (cartService.isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-gold" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  @if (!cartService.isLoading() && cartItems().length === 0) {
+    <div class="text-center py-5">
+      <h3>Your cart is empty</h3>
+      <p class="text-muted mb-4">Add some products to get started!</p>
+      <a routerLink="/products" class="btn btn-primary">Browse Products</a>
+    </div>
+  }
+
+  @if (!cartService.isLoading() && cartItems().length > 0) {
+    <div class="row">
+      <!-- Cart Items -->
+      <div class="col-md-8">
+        <div class="card bg-dark-custom mb-4">
+          <div class="card-body">
+            @for (item of cartItems(); track item.id) {
+              <div
+                class="row align-items-center mb-4 pb-4 border-bottom"
+                [class.border-secondary]="!$last"
+              >
+                <div class="col-md-2">
+                  <img
+                    [src]="item.product.images[0] || 'https://via.placeholder.com/100x100'"
+                    [alt]="item.product.name"
+                    class="img-fluid rounded"
+                    style="max-height: 100px; object-fit: cover"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <h5 class="mb-1">
+                    <a [routerLink]="['/products', item.product.id]" class="text-decoration-none">
+                      {{ item.product.name }}
+                    </a>
+                  </h5>
+                  <p class="text-muted small mb-1">{{ item.product.brand }}</p>
+                  @if (item.selectedVariants.length > 0) {
+                    <div class="small">
+                      @for (variant of item.selectedVariants; track variant.variantId) {
+                        <span class="badge bg-secondary me-1">
+                          {{ variant.variantName }}: {{ variant.optionValue }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="col-md-2 text-center">
+                  <div class="input-group input-group-sm" style="max-width: 120px; margin: 0 auto">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="updateQuantity(item.id, item.quantity - 1)"
+                      [disabled]="isUpdating(item.id) || item.quantity <= 1"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      class="form-control text-center"
+                      [value]="item.quantity"
+                      (input)="onQuantityInput(item.id, $event)"
+                      min="1"
+                      readonly
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="updateQuantity(item.id, item.quantity + 1)"
+                      [disabled]="isUpdating(item.id)"
+                    >
+                      +
+                    </button>
+                  </div>
+                  @if (isUpdating(item.id)) {
+                    <small class="text-muted">Updating...</small>
+                  }
+                </div>
+                <div class="col-md-2 text-center">
+                  <div class="fw-bold text-gold">${{ getItemTotalFormatted(item) }}</div>
+                  <small class="text-muted">${{ getItemPriceFormatted(item) }} each</small>
+                </div>
+                <div class="col-md-2 text-end">
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="removeItem(item.id)"
+                    [disabled]="isRemoving(item.id)"
+                  >
+                    @if (isRemoving(item.id)) {
+                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                    } @else {
+                      Remove
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="col-md-4">
+        <div class="card bg-dark-custom sticky-top" style="top: 20px">
+          <div class="card-header">
+            <h5 class="mb-0">Order Summary</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Items ({{ cartService.cartItemCount() }})</span>
+              <span>${{ getCartTotalFormatted() }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Shipping</span>
+              <span class="text-success">Free</span>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between mb-3">
+              <strong>Total</strong>
+              <strong class="text-gold">${{ getCartTotalFormatted() }}</strong>
+            </div>
+            <button class="btn btn-primary w-100 btn-lg mb-2" (click)="checkout()">
+              Proceed to Checkout
+            </button>
+            <a routerLink="/products" class="btn btn-outline-secondary w-100">
+              Continue Shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

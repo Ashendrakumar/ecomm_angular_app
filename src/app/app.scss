@@ -1,0 +1,56 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--medium-gray);
+  z-index: 1030; /* above content, below bootstrap modals */
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  position: relative;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.18s ease-in-out;
+}
+
+.nav-link:hover {
+  color: var(--accent-gold);
+}
+
+/* Animated underline (hover) + persistent underline (active) */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.1rem;
+  height: 1px;
+  background-color: var(--accent-gold);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.22s ease-in-out;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-link.active {
+  color: var(--accent-gold) !important;
+}
+
+.nav-link.active::after {
+  transform: scaleX(1);
+}
