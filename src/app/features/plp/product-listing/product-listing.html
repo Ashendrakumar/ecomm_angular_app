@@ -155,9 +155,9 @@
         <!-- Infinite Scroll Trigger -->
         @if (hasMore()) {
           <div #scrollTrigger class="text-center py-4">
-            <!-- <div class="spinner-border text-gold" role="status">
+            <div class="spinner-border text-gold" role="status">
               <span class="visually-hidden">Loading more...</span>
-            </div> -->
+            </div>
             <app-skeleton-loader [skeletonCount]="8" />
           </div>
         }

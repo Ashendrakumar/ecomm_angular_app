@@ -105,13 +105,13 @@ export class ProductListing implements OnInit, AfterViewInit, OnDestroy {
         next: (response) => {
           if (response.page === 1) {
             this._products.set(response.products);
+            this.updateUrl();
           } else {
             this._products.update((products) => [...products, ...response.products]);
           }
           this._totalProducts.set(response.total);
           this._hasMore.set(response.hasMore);
           this._isLoading.set(false);
-          this.updateUrl();
           if (response.hasMore) {
             this.observeScrollTriggerSoon();
           }
