@@ -1,8 +1,7 @@
 import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, PLATFORM_ID, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { PLATFORM_ID } from '@angular/core';
 import { Product, VariantOption } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/product.service';
@@ -13,7 +12,7 @@ import { ProductService } from '../../../core/services/product.service';
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })
-export class ProductDetail {
+export class ProductDetail implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
   private readonly route = inject(ActivatedRoute);
@@ -26,6 +25,8 @@ export class ProductDetail {
   private readonly _isLoading = signal<boolean>(true);
   private readonly _isAddingToCart = signal<boolean>(false);
   private readonly _selectedImage = signal<string | null>(null);
+  /** Current index in the gallery (for slider) */
+  private readonly _galleryIndex = signal<number>(0);
   private readonly _selectedVariants = signal<Map<string, VariantOption>>(new Map());
   private readonly _quantity = signal<number>(1);
 
@@ -34,6 +35,7 @@ export class ProductDetail {
   readonly isLoading = this._isLoading.asReadonly();
   readonly isAddingToCart = this._isAddingToCart.asReadonly();
   readonly selectedImage = this._selectedImage.asReadonly();
+  readonly galleryIndex = this._galleryIndex.asReadonly();
   readonly quantity = this._quantity.asReadonly();
 
   // Computed signals
@@ -56,9 +58,9 @@ export class ProductDetail {
 
   readonly discountPercentage = computed(() => {
     const product = this._product();
-    if (!product || !product.originalPrice) return 0;
+    if (!product?.originalPrice) return 0;
     return Math.round(
-      ((product.originalPrice - this.currentPrice()) / product.originalPrice) * 100,
+      ((product.originalPrice - this.currentPrice()) / product.originalPrice) * 100
     );
   });
 
@@ -86,6 +88,20 @@ export class ProductDetail {
     return this.currentStockQuantity() > 0;
   });
 
+  /** All gallery images: product images + variant option images (deduplicated) */
+  readonly galleryImages = computed(() => {
+    const product = this._product();
+    if (!product) return [];
+    const urls = new Set<string>(product.images ?? []);
+    const variants = product.variants ?? [];
+    variants.forEach((v) => {
+      v.options.forEach((o) => {
+        if (o.image) urls.add(o.image);
+      });
+    });
+    return Array.from(urls);
+  });
+
   readonly canAddToCart = computed(() => {
     const product = this._product();
     if (!product) return false;
@@ -94,7 +110,7 @@ export class ProductDetail {
     if (product.variants && product.variants.length > 0) {
       const selectedVariants = this._selectedVariants();
       const allVariantsSelected = product.variants.every((variant) =>
-        selectedVariants.has(variant.id),
+        selectedVariants.has(variant.id)
       );
       if (!allVariantsSelected) return false;
     }
@@ -119,9 +135,10 @@ export class ProductDetail {
         this._product.set(product);
         this._isLoading.set(false);
 
-        // Set default image
-        if (product && product.images.length > 0) {
+        // Set default image and gallery index
+        if (product?.images?.length) {
           this._selectedImage.set(product.images[0]);
+          this._galleryIndex.set(0);
         }
 
         // Auto-select first available variant options
@@ -131,9 +148,9 @@ export class ProductDetail {
             const firstAvailable = variant.options.find((opt) => opt.inStock);
             if (firstAvailable) {
               defaultVariants.set(variant.id, firstAvailable);
-              // Update image if variant has specific image
               if (firstAvailable.image) {
                 this._selectedImage.set(firstAvailable.image);
+                this.syncGalleryIndexFromSelectedImage();
               }
             }
           });
@@ -147,10 +164,45 @@ export class ProductDetail {
   }
 
   /**
-   * Select an image
+   * Select an image and sync slider index
    */
   selectImage(image: string): void {
     this._selectedImage.set(image);
+    this.syncGalleryIndexFromSelectedImage();
+  }
+
+  /** Set gallery index to match currently selected image URL */
+  private syncGalleryIndexFromSelectedImage(): void {
+    const img = this._selectedImage();
+    const list = this.galleryImages();
+    const idx = list.indexOf(img ?? '');
+    if (idx >= 0) this._galleryIndex.set(idx);
+  }
+
+  /** Slider: go to previous image */
+  prevImage(): void {
+    const list = this.galleryImages();
+    if (list.length <= 1) return;
+    const i = (this._galleryIndex() - 1 + list.length) % list.length;
+    this._galleryIndex.set(i);
+    this._selectedImage.set(list[i]);
+  }
+
+  /** Slider: go to next image */
+  nextImage(): void {
+    const list = this.galleryImages();
+    if (list.length <= 1) return;
+    const i = (this._galleryIndex() + 1) % list.length;
+    this._galleryIndex.set(i);
+    this._selectedImage.set(list[i]);
+  }
+
+  /** Slider: go to image by index */
+  goToImageIndex(index: number): void {
+    const list = this.galleryImages();
+    if (index < 0 || index >= list.length) return;
+    this._galleryIndex.set(index);
+    this._selectedImage.set(list[index]);
   }
 
   /**
@@ -163,9 +215,9 @@ export class ProductDetail {
     selectedVariants.set(variantId, option);
     this._selectedVariants.set(selectedVariants);
 
-    // Update image if variant has specific image
     if (option.image) {
       this._selectedImage.set(option.image);
+      this.syncGalleryIndexFromSelectedImage();
     }
 
     // Reset quantity if it exceeds new stock
@@ -242,10 +294,11 @@ export class ProductDetail {
         variantName: product.variants?.find((v) => v.id === variantId)?.name || '',
         optionId: option.id,
         optionValue: option.value,
-      }),
+      })
     );
 
-    this.cartService.addToCart(product, this._quantity(), selectedVariants).subscribe({
+    const finalPrice = this.currentPrice();
+    this.cartService.addToCart(product, this._quantity(), selectedVariants, finalPrice).subscribe({
       next: () => {
         this._isAddingToCart.set(false);
         // Optionally show success message or navigate to cart
@@ -263,7 +316,7 @@ export class ProductDetail {
    * If user landed directly on PDP (no history), fallback to Products list.
    */
   goBack(): void {
-    if (isPlatformBrowser(this.platformId) && window.history.length > 1) {
+    if (isPlatformBrowser(this.platformId) && globalThis.window.history.length > 1) {
       this.location.back();
       return;
     }

@@ -10,13 +10,14 @@ import { isPlatformBrowser } from '@angular/common';
  * Handles both guest cart (localStorage) and logged-in cart (API)
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly CART_STORAGE_KEY = 'guest_cart';
-  private readonly API_DELAY = 300;
+  /** Delay for add-to-cart so loader is visible when using JSON/mock API */
+  private readonly API_DELAY = 500;
 
   // Cart state signals
   private readonly _cartItems = signal<CartItem[]>([]);
@@ -40,7 +41,7 @@ export class CartService {
   readonly cart = computed<Cart>(() => ({
     items: this._cartItems(),
     total: this.cartTotal(),
-    itemCount: this.cartItemCount()
+    itemCount: this.cartItemCount(),
   }));
 
   constructor() {
@@ -75,17 +76,27 @@ export class CartService {
 
   /**
    * Add item to cart
+   * @param finalPrice Optional price including variant modifiers (e.g. from PDP currentPrice)
    */
-  addToCart(product: Product, quantity: number = 1, selectedVariants: CartItem['selectedVariants'] = []): Observable<CartItem> {
+  addToCart(
+    product: Product,
+    quantity: number = 1,
+    selectedVariants: CartItem['selectedVariants'] = [],
+    finalPrice?: number,
+  ): Observable<CartItem> {
     this._isLoading.set(true);
     this._lastError.set(null);
 
-    // Calculate final price with variant modifiers
-    let finalPrice = product.price;
-    if (product.variants && selectedVariants.length > 0) {
-      // In a real app, we'd calculate variant price modifiers here
-      // For now, we'll use the base price
+    let price = finalPrice ?? product.price;
+    if (product.variants && selectedVariants.length > 0 && finalPrice == null) {
+      // Resolve variant price modifiers from product when finalPrice not provided
+      const optionIds = new Set(selectedVariants.map((v) => v.optionId));
+      for (const v of product.variants) {
+        const opt = v.options.find((o) => optionIds.has(o.id));
+        if (opt?.priceModifier) price += opt.priceModifier;
+      }
     }
+    const finalPriceResolved = price;
 
     const cartItem: CartItem = {
       id: this.generateCartItemId(),
@@ -93,13 +104,15 @@ export class CartService {
       product,
       quantity,
       selectedVariants,
-      price: finalPrice
+      price: finalPriceResolved,
     };
 
     // Optimistic update
     const currentItems = this._cartItems();
     const existingItemIndex = currentItems.findIndex(
-      item => item.productId === product.id && this.variantsMatch(item.selectedVariants, selectedVariants)
+      (item) =>
+        item.productId === product.id &&
+        this.variantsMatch(item.selectedVariants, selectedVariants),
     );
 
     let updatedItems: CartItem[];
@@ -108,7 +121,7 @@ export class CartService {
       updatedItems = [...currentItems];
       updatedItems[existingItemIndex] = {
         ...updatedItems[existingItemIndex],
-        quantity: updatedItems[existingItemIndex].quantity + quantity
+        quantity: updatedItems[existingItemIndex].quantity + quantity,
       };
     } else {
       // Add new item
@@ -120,7 +133,7 @@ export class CartService {
     // Simulate API call
     return of(cartItem).pipe(
       delay(this.API_DELAY),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => this._isLoading.set(false)),
       // In production, handle errors and rollback
     );
   }
@@ -131,7 +144,9 @@ export class CartService {
   updateQuantity(itemId: string, quantity: number): Observable<CartItem> {
     if (quantity <= 0) {
       // Don't allow zero or negative quantities - caller should use removeItem instead
-      return throwError(() => new Error('Quantity must be greater than 0. Use removeItem to remove items.'));
+      return throwError(
+        () => new Error('Quantity must be greater than 0. Use removeItem to remove items.'),
+      );
     }
 
     this._isLoading.set(true);
@@ -139,7 +154,7 @@ export class CartService {
 
     // Optimistic update
     const currentItems = this._cartItems();
-    const itemIndex = currentItems.findIndex(item => item.id === itemId);
+    const itemIndex = currentItems.findIndex((item) => item.id === itemId);
 
     if (itemIndex === -1) {
       this._isLoading.set(false);
@@ -155,7 +170,7 @@ export class CartService {
     // Simulate API call with potential stock check
     return of(updatedItems[itemIndex]).pipe(
       delay(this.API_DELAY),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => this._isLoading.set(false)),
       // In production, check stock and rollback if needed
     ) as Observable<CartItem>;
   }
@@ -168,13 +183,13 @@ export class CartService {
     this._lastError.set(null);
 
     // Optimistic update
-    const updatedItems = this._cartItems().filter(item => item.id !== itemId);
+    const updatedItems = this._cartItems().filter((item) => item.id !== itemId);
     this._cartItems.set(updatedItems);
 
     // Simulate API call
     return of(void 0).pipe(
       delay(this.API_DELAY),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => this._isLoading.set(false)),
     );
   }
 
@@ -232,7 +247,7 @@ export class CartService {
     // For now, return empty cart
     return of([]).pipe(
       delay(this.API_DELAY),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => this._isLoading.set(false)),
     );
   }
 
@@ -246,7 +261,7 @@ export class CartService {
 
     const guestItems = this._cartItems();
     if (guestItems.length === 0) {
-      this.loadBackendCart().subscribe(items => {
+      this.loadBackendCart().subscribe((items) => {
         this._cartItems.set(items);
         this._isLoading.set(false);
       });
@@ -257,23 +272,28 @@ export class CartService {
     this._isLoading.set(true);
     // In production, send guest items to backend for merging
     // Backend will merge and return the combined cart
-    of(guestItems).pipe(delay(this.API_DELAY)).subscribe(mergedItems => {
-      this._cartItems.set(mergedItems);
-      // Clear guest cart after successful merge
-      localStorage.removeItem(this.CART_STORAGE_KEY);
-      this._isLoading.set(false);
-    });
+    of(guestItems)
+      .pipe(delay(this.API_DELAY))
+      .subscribe((mergedItems) => {
+        this._cartItems.set(mergedItems);
+        // Clear guest cart after successful merge
+        localStorage.removeItem(this.CART_STORAGE_KEY);
+        this._isLoading.set(false);
+      });
   }
 
   /**
    * Check if two variant arrays match
    */
-  private variantsMatch(variants1: CartItem['selectedVariants'], variants2: CartItem['selectedVariants']): boolean {
+  private variantsMatch(
+    variants1: CartItem['selectedVariants'],
+    variants2: CartItem['selectedVariants'],
+  ): boolean {
     if (variants1.length !== variants2.length) {
       return false;
     }
-    return variants1.every(v1 =>
-      variants2.some(v2 => v1.variantId === v2.variantId && v1.optionId === v2.optionId)
+    return variants1.every((v1) =>
+      variants2.some((v2) => v1.variantId === v2.variantId && v1.optionId === v2.optionId),
     );
   }
 

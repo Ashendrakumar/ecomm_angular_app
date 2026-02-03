@@ -8,11 +8,16 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '1',
     name: 'Premium Wireless Headphones',
-    description: 'High-quality wireless headphones with noise cancellation and premium sound quality.',
+    description:
+      'High-quality wireless headphones with noise cancellation and premium sound quality.',
     price: 199.99,
     originalPrice: 249.99,
     brand: 'AudioTech',
-    images: ['https://placehold.co/400x400/?text=Headphones'],
+    images: [
+      'https://placehold.co/600x600/1a1a2e/eee?text=Headphones+1',
+      'https://placehold.co/600x600/16213e/eee?text=Headphones+2',
+      'https://placehold.co/600x600/0f3460/eee?text=Headphones+3',
+    ],
     inStock: true,
     stockQuantity: 50,
     category: 'Electronics',
@@ -23,10 +28,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Color',
         options: [
           { id: 'black', value: 'Black', inStock: true, stockQuantity: 30 },
-          { id: 'white', value: 'White', inStock: true, stockQuantity: 20 }
-        ]
-      }
-    ]
+          { id: 'white', value: 'White', inStock: true, stockQuantity: 20 },
+        ],
+      },
+    ],
   },
   {
     id: '2',
@@ -45,18 +50,18 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Size',
         options: [
           { id: 'small', value: 'Small (40mm)', inStock: true, stockQuantity: 10 },
-          { id: 'large', value: 'Large (44mm)', inStock: true, stockQuantity: 15 }
-        ]
+          { id: 'large', value: 'Large (44mm)', inStock: true, stockQuantity: 15 },
+        ],
       },
       {
         id: 'color',
         name: 'Color',
         options: [
           { id: 'silver', value: 'Silver', inStock: true, stockQuantity: 12 },
-          { id: 'black', value: 'Black', inStock: true, stockQuantity: 13 }
-        ]
-      }
-    ]
+          { id: 'black', value: 'Black', inStock: true, stockQuantity: 13 },
+        ],
+      },
+    ],
   },
   {
     id: '3',
@@ -65,7 +70,10 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 449.99,
     originalPrice: 599.99,
     brand: 'FashionElite',
-    images: ['https://placehold.co/400x400/?text=Jacket'],
+    images: [
+      'https://placehold.co/600x600/2d1b2e/eee?text=Jacket+1',
+      'https://placehold.co/600x600/1b2d3e/eee?text=Jacket+2',
+    ],
     inStock: true,
     stockQuantity: 15,
     category: 'Fashion',
@@ -78,18 +86,18 @@ export const MOCK_PRODUCTS: Product[] = [
           { id: 's', value: 'Small', inStock: true, stockQuantity: 3 },
           { id: 'm', value: 'Medium', inStock: true, stockQuantity: 5 },
           { id: 'l', value: 'Large', inStock: true, stockQuantity: 4 },
-          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 3 }
-        ]
+          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 3 },
+        ],
       },
       {
         id: 'color',
         name: 'Color',
         options: [
           { id: 'brown', value: 'Brown', inStock: true, stockQuantity: 8 },
-          { id: 'black', value: 'Black', inStock: true, stockQuantity: 7 }
-        ]
-      }
-    ]
+          { id: 'black', value: 'Black', inStock: true, stockQuantity: 7 },
+        ],
+      },
+    ],
   },
   {
     id: '4',
@@ -111,18 +119,18 @@ export const MOCK_PRODUCTS: Product[] = [
           { id: '8', value: '8', inStock: true, stockQuantity: 8 },
           { id: '9', value: '9', inStock: true, stockQuantity: 10 },
           { id: '10', value: '10', inStock: true, stockQuantity: 9 },
-          { id: '11', value: '11', inStock: true, stockQuantity: 8 }
-        ]
+          { id: '11', value: '11', inStock: true, stockQuantity: 8 },
+        ],
       },
       {
         id: 'color',
         name: 'Color',
         options: [
           { id: 'blue', value: 'Blue', inStock: true, stockQuantity: 20 },
-          { id: 'red', value: 'Red', inStock: true, stockQuantity: 20 }
-        ]
-      }
-    ]
+          { id: 'red', value: 'Red', inStock: true, stockQuantity: 20 },
+        ],
+      },
+    ],
   },
   {
     id: '5',
@@ -134,7 +142,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 60,
     category: 'Accessories',
-    createdAt: '2024-01-25T10:00:00Z'
+    createdAt: '2024-01-25T10:00:00Z',
   },
   {
     id: '6',
@@ -153,10 +161,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Color',
         options: [
           { id: 'black', value: 'Black', inStock: true, stockQuantity: 60 },
-          { id: 'white', value: 'White', inStock: true, stockQuantity: 40 }
-        ]
-      }
-    ]
+          { id: 'white', value: 'White', inStock: true, stockQuantity: 40 },
+        ],
+      },
+    ],
   },
   {
     id: '7',
@@ -177,8 +185,8 @@ export const MOCK_PRODUCTS: Product[] = [
           { id: 's', value: 'Small', inStock: true, stockQuantity: 15 },
           { id: 'm', value: 'Medium', inStock: true, stockQuantity: 25 },
           { id: 'l', value: 'Large', inStock: true, stockQuantity: 25 },
-          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 15 }
-        ]
+          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 15 },
+        ],
       },
       {
         id: 'color',
@@ -186,10 +194,10 @@ export const MOCK_PRODUCTS: Product[] = [
         options: [
           { id: 'white', value: 'White', inStock: true, stockQuantity: 30 },
           { id: 'black', value: 'Black', inStock: true, stockQuantity: 30 },
-          { id: 'gray', value: 'Gray', inStock: true, stockQuantity: 20 }
-        ]
-      }
-    ]
+          { id: 'gray', value: 'Gray', inStock: true, stockQuantity: 20 },
+        ],
+      },
+    ],
   },
   {
     id: '8',
@@ -208,10 +216,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Color',
         options: [
           { id: 'purple', value: 'Purple', inStock: true, stockQuantity: 20 },
-          { id: 'blue', value: 'Blue', inStock: true, stockQuantity: 25 }
-        ]
-      }
-    ]
+          { id: 'blue', value: 'Blue', inStock: true, stockQuantity: 25 },
+        ],
+      },
+    ],
   },
   {
     id: '9',
@@ -223,7 +231,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: false,
     stockQuantity: 0,
     category: 'Home',
-    createdAt: '2024-01-10T10:00:00Z'
+    createdAt: '2024-01-10T10:00:00Z',
   },
   {
     id: '10',
@@ -242,10 +250,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Color',
         options: [
           { id: 'blue', value: 'Blue', inStock: true, stockQuantity: 18 },
-          { id: 'red', value: 'Red', inStock: true, stockQuantity: 17 }
-        ]
-      }
-    ]
+          { id: 'red', value: 'Red', inStock: true, stockQuantity: 17 },
+        ],
+      },
+    ],
   },
   {
     id: '11',
@@ -257,7 +265,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 55,
     category: 'Home',
-    createdAt: '2024-02-12T10:00:00Z'
+    createdAt: '2024-02-12T10:00:00Z',
   },
   {
     id: '12',
@@ -276,10 +284,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Switch Type',
         options: [
           { id: 'red', value: 'Red Switches', inStock: true, stockQuantity: 10 },
-          { id: 'blue', value: 'Blue Switches', inStock: true, stockQuantity: 10 }
-        ]
-      }
-    ]
+          { id: 'blue', value: 'Blue Switches', inStock: true, stockQuantity: 10 },
+        ],
+      },
+    ],
   },
   {
     id: '13',
@@ -291,7 +299,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 30,
     category: 'Accessories',
-    createdAt: '2024-02-08T10:00:00Z'
+    createdAt: '2024-02-08T10:00:00Z',
   },
   {
     id: '14',
@@ -310,10 +318,10 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Color',
         options: [
           { id: 'black', value: 'Black', inStock: true, stockQuantity: 25 },
-          { id: 'pink', value: 'Pink', inStock: true, stockQuantity: 25 }
-        ]
-      }
-    ]
+          { id: 'pink', value: 'Pink', inStock: true, stockQuantity: 25 },
+        ],
+      },
+    ],
   },
   {
     id: '15',
@@ -332,18 +340,18 @@ export const MOCK_PRODUCTS: Product[] = [
         name: 'Size',
         options: [
           { id: '500ml', value: '500ml', inStock: true, stockQuantity: 35 },
-          { id: '750ml', value: '750ml', inStock: true, stockQuantity: 35 }
-        ]
+          { id: '750ml', value: '750ml', inStock: true, stockQuantity: 35 },
+        ],
       },
       {
         id: 'color',
         name: 'Color',
         options: [
           { id: 'blue', value: 'Blue', inStock: true, stockQuantity: 35 },
-          { id: 'green', value: 'Green', inStock: true, stockQuantity: 35 }
-        ]
-      }
-    ]
+          { id: 'green', value: 'Green', inStock: true, stockQuantity: 35 },
+        ],
+      },
+    ],
   },
   {
     id: '16',
@@ -355,7 +363,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 90,
     category: 'Accessories',
-    createdAt: '2024-02-16T10:00:00Z'
+    createdAt: '2024-02-16T10:00:00Z',
   },
   {
     id: '17',
@@ -377,10 +385,10 @@ export const MOCK_PRODUCTS: Product[] = [
           { id: '30', value: '30', inStock: true, stockQuantity: 8 },
           { id: '32', value: '32', inStock: true, stockQuantity: 10 },
           { id: '34', value: '34', inStock: true, stockQuantity: 9 },
-          { id: '36', value: '36', inStock: true, stockQuantity: 8 }
-        ]
-      }
-    ]
+          { id: '36', value: '36', inStock: true, stockQuantity: 8 },
+        ],
+      },
+    ],
   },
   {
     id: '18',
@@ -392,7 +400,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 15,
     category: 'Sports',
-    createdAt: '2024-01-28T10:00:00Z'
+    createdAt: '2024-01-28T10:00:00Z',
   },
   {
     id: '19',
@@ -404,7 +412,7 @@ export const MOCK_PRODUCTS: Product[] = [
     inStock: true,
     stockQuantity: 40,
     category: 'Accessories',
-    createdAt: '2024-02-19T10:00:00Z'
+    createdAt: '2024-02-19T10:00:00Z',
   },
   {
     id: '20',
@@ -425,17 +433,17 @@ export const MOCK_PRODUCTS: Product[] = [
           { id: 's', value: 'Small', inStock: true, stockQuantity: 10 },
           { id: 'm', value: 'Medium', inStock: true, stockQuantity: 15 },
           { id: 'l', value: 'Large', inStock: true, stockQuantity: 15 },
-          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 10 }
-        ]
+          { id: 'xl', value: 'X-Large', inStock: true, stockQuantity: 10 },
+        ],
       },
       {
         id: 'color',
         name: 'Color',
         options: [
           { id: 'gray', value: 'Gray', inStock: true, stockQuantity: 25 },
-          { id: 'navy', value: 'Navy', inStock: true, stockQuantity: 25 }
-        ]
-      }
-    ]
-  }
+          { id: 'navy', value: 'Navy', inStock: true, stockQuantity: 25 },
+        ],
+      },
+    ],
+  },
 ];
