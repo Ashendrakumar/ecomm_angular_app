@@ -1,20 +1,41 @@
-<div class="row g-4">
-  @for (s of skeletonItems; track s) {
-    <div class="col-md-4 col-lg-3">
-      <div class="card h-100 skeleton-card">
-        <div class="skeleton skeleton-image card-img-top"></div>
-        <div class="card-body d-flex flex-column gap-2">
-          <div class="d-flex justify-content-between">
-            <div class="flex-grow-1">
-              <div class="skeleton skeleton-title"></div>
-              <div class="skeleton skeleton-text mt-2"></div>
+@if (type === 'grid') {
+  <div class="row g-4">
+    @for (s of skeletonItems; track s) {
+      <div class="col-md-4 col-lg-3">
+        <div class="card h-100 skeleton-card">
+          <div class="skeleton skeleton-image card-img-top"></div>
+          <div class="card-body d-flex flex-column gap-2">
+            <div class="d-flex justify-content-between">
+              <div class="flex-grow-1">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text mt-2"></div>
+              </div>
             </div>
-          </div>
-          <div class="mt-auto">
-            <div class="skeleton skeleton-price"></div>
+            <div class="mt-auto">
+              <div class="skeleton skeleton-price"></div>
+            </div>
           </div>
         </div>
       </div>
+    }
+  </div>
+} @else if (type === 'cart-item') {
+  @for (s of skeletonItems; track s) {
+    <div class="skeleton-cart-item">
+      <div class="skeleton-cart-item__image skeleton"></div>
+      <div class="skeleton-cart-item__details">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-text mt-2"></div>
+      </div>
+      <div class="skeleton-cart-item__qty">
+        <div class="skeleton skeleton-qty"></div>
+      </div>
+      <div class="skeleton-cart-item__price">
+        <div class="skeleton skeleton-price"></div>
+      </div>
+      <div class="skeleton-cart-item__actions">
+        <div class="skeleton skeleton-button"></div>
+      </div>
     </div>
   }
-</div>
+}

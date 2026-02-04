@@ -5,10 +5,11 @@ import { RouterModule } from '@angular/router';
 import { CartItem } from '../../core/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
 import { NoDataFound } from '../../shared/components/no-data-found/no-data-found';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, FormsModule, RouterModule, NoDataFound],
+  imports: [CommonModule, FormsModule, RouterModule, NoDataFound, SkeletonLoaderComponent],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })

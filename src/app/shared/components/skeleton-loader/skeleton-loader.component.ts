@@ -8,6 +8,8 @@ import { Component, Input } from '@angular/core';
 })
 export class SkeletonLoaderComponent {
   @Input() skeletonCount: number = 4;
+  @Input() type: 'grid' | 'cart-item' = 'grid';
+
   get skeletonItems(): number[] {
     return Array.from({ length: this.skeletonCount });
   }
