@@ -5,10 +5,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Product, VariantOption } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/product.service';
+import { NoDataFound } from "../../../shared/components/no-data-found/no-data-found";
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NoDataFound],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })

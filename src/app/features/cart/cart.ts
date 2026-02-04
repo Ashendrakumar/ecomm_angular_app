@@ -4,16 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartItem } from '../../core/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
+import { NoDataFound } from '../../shared/components/no-data-found/no-data-found';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NoDataFound],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })
 export class Cart {
   readonly cartService = inject(CartService);
-
   // State for tracking individual item updates
   private readonly _updatingItems = signal<Set<string>>(new Set());
   private readonly _removingItems = signal<Set<string>>(new Set());

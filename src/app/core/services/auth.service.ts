@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, tap } from 'rxjs';
 import { User, AuthState } from '../models/user.model';
 
 /**
@@ -10,8 +10,10 @@ import { User, AuthState } from '../models/user.model';
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly _user = signal<User | null>(null);
   private readonly API_DELAY = 300;
+  private readonly STORAGE_KEY = 'logged-in-user';
+  // Private signals - Initialize from localStorage if available
+  private readonly _user = signal<User | null>(this.getStoredUser());
 
   // Public readonly signals
   readonly user = this._user.asReadonly();
@@ -37,6 +39,10 @@ export class AuthService {
 
     return of(user).pipe(
       delay(this.API_DELAY),
+      tap((user) => {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+        this.setUser(user);
+      }),
       // In production, handle errors
     );
   }
@@ -45,14 +51,28 @@ export class AuthService {
    * Logout user
    */
   logout(): Observable<void> {
-    this._user.set(null);
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.setUser(null);
     return of(void 0).pipe(delay(100));
+  }
+
+  /**
+   * Get stored user from localStorage
+   */
+  private getStoredUser(): User | null {
+    try {
+      const storedUser = localStorage.getItem(this.STORAGE_KEY);
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      return null;
+    }
   }
 
   /**
    * Get current user (for testing - simulates logged-in state)
    */
-  setUser(user: User | null): void {
+  private setUser(user: User | null): void {
     this._user.set(user);
   }
 }

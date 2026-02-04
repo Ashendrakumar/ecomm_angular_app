@@ -15,6 +15,8 @@ import { isPlatformBrowser } from '@angular/common';
 export class CartService {
   private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
+
   private readonly CART_STORAGE_KEY = 'guest_cart';
   /** Delay for add-to-cart so loader is visible when using JSON/mock API */
   private readonly API_DELAY = 500;
@@ -28,9 +30,6 @@ export class CartService {
   readonly cartItems = this._cartItems.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly lastError = this._lastError.asReadonly();
-
-  /** Whether the user is logged in (cart stored via backend vs localStorage). */
-  readonly isAuthenticated = this.authService.isAuthenticated;
 
   // Computed signals
   readonly cartTotal = computed(() => {
@@ -47,33 +46,49 @@ export class CartService {
     itemCount: this.cartItemCount(),
   }));
 
+  private isFirstRun = true;
+
   constructor() {
     // Initialize cart from storage or API based on auth state
     if (isPlatformBrowser(this.platformId)) {
-      if (this.authService.isAuthenticated()) {
-        this.loadBackendCart();
+      if (this.isAuthenticated()) {
+        this.loadBackendCart().subscribe((items) => {
+          this._cartItems.set(items);
+        });
       } else {
         this.loadGuestCart();
       }
     }
 
-    // Effect to sync cart when auth state changes
+    // Effect to handle auth state changes (login/logout)
     effect(() => {
-      const isAuthenticated = this.authService.isAuthenticated();
-      if (isAuthenticated) {
+      const authenticated = this.isAuthenticated();
+
+      // Skip first run (initialization already handled above)
+      if (this.isFirstRun) {
+        this.isFirstRun = false;
+        return;
+      }
+
+      if (!isPlatformBrowser(this.platformId)) {
+        return;
+      }
+
+      // Handle login - merge guest cart
+      if (authenticated) {
         this.mergeGuestCartToBackend();
       } else {
+        // Handle logout - load guest cart
         this.loadGuestCart();
       }
     });
 
-    // Effect to save guest cart whenever it changes
+    // Effect to save guest cart whenever it changes (not for authenticated users)
     effect(() => {
-      if (!this.authService.isAuthenticated() && isPlatformBrowser(this.platformId)) {
+      const items = this._cartItems(); // Create dependency
+      if (!this.isAuthenticated() && isPlatformBrowser(this.platformId)) {
         this.saveGuestCart();
       }
-      // Access cartItems to create dependency
-      this._cartItems();
     });
   }
 
@@ -233,6 +248,28 @@ export class CartService {
   }
 
   /**
+   * Handle user login - merge guest cart with backend cart
+   * This should be called by AuthService after successful login
+   */
+  onUserLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.mergeGuestCartToBackend();
+  }
+
+  /**
+   * Handle user logout - clear cart and load guest cart
+   * This should be called by AuthService after logout
+   */
+  onUserLogout(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.loadGuestCart();
+  }
+
+  /**
    * Load guest cart from localStorage
    */
   private loadGuestCart(): void {
@@ -245,10 +282,13 @@ export class CartService {
       if (stored) {
         const items: CartItem[] = JSON.parse(stored);
         this._cartItems.set(items);
+      } else {
+        this._cartItems.set([]);
       }
     } catch (error) {
       console.error('Error loading guest cart:', error);
       this._lastError.set('Failed to load cart');
+      this._cartItems.set([]);
     }
   }
 
@@ -271,13 +311,9 @@ export class CartService {
    * Load cart from backend API (for logged-in users)
    */
   private loadBackendCart(): Observable<CartItem[]> {
-    this._isLoading.set(true);
     // In production, make HTTP call to backend
     // For now, return empty cart
-    return of([]).pipe(
-      delay(this.API_DELAY),
-      finalize(() => this._isLoading.set(false)),
-    );
+    return of([]).pipe(delay(this.API_DELAY));
   }
 
   /**

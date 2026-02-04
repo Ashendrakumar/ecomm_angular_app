@@ -1,0 +1,11 @@
+<div class="page__empty card bg-dark-custom">
+  <div class="card-body text-center py-5">
+    <h3 class="page__empty-title">{{ title }}</h3>
+    <p class="text-muted mb-4">{{ message }}</p>
+    @if (isHandleClick) {
+      <button class="btn btn-primary" (click)="onClickAction()">{{ actionName }}</button>
+    } @else {
+      <a routerLink="/products" class="btn btn-primary">{{ actionName }}</a>
+    }
+  </div>
+</div>

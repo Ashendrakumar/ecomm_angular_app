@@ -19,10 +19,18 @@ import { ProductCard } from '../../../shared/components/product-card/product-car
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
+import { NoDataFound } from '../../../shared/components/no-data-found/no-data-found';
 
 @Component({
   selector: 'app-product-listing',
-  imports: [CommonModule, FormsModule, RouterModule, ProductCard, SkeletonLoaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ProductCard,
+    SkeletonLoaderComponent,
+    NoDataFound,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-listing.html',
   styleUrl: './product-listing.scss',
