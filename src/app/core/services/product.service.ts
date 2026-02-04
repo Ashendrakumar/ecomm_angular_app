@@ -21,6 +21,14 @@ export class ProductService {
   private readonly API_DELAY = 100; // Simulate network delay
 
   /**
+   * Get all product IDs
+   * In production, this would make real HTTP call
+   */
+  async getAllProjectIds(): Promise<string[]> {
+    return MOCK_PRODUCTS.map((p) => String(p.id));
+  }
+
+  /**
    * Get products with filters, sorting, and pagination
    */
   getProducts(
