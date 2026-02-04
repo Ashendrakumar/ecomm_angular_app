@@ -60,16 +60,20 @@ body {
 
 // Button Styles
 .btn {
+  border-radius: 8px;
   transition:
     filter 0.2s,
     transform 0.15s;
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
+
   &:active:not(:disabled) {
     transform: scale(0.99);
   }
+
   &:hover:not(:disabled) {
     filter: brightness(1.1);
   }
@@ -96,10 +100,12 @@ body {
   &.btn-outline-primary {
     color: var(--accent-gold);
     border-color: var(--accent-gold);
+
     &:disabled {
       color: var(--accent-gold);
       border-color: var(--accent-gold);
     }
+
     &:hover,
     &:focus,
     &:active {
@@ -117,6 +123,7 @@ body {
       border-color: var(--medium-gray);
       color: var(--primary-white);
     }
+
     &:active,
     &:focus,
     &:hover {
@@ -174,7 +181,8 @@ body {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
-  padding-right: 2.25rem; /* keep text from overlapping arrow */
+  padding-right: 2.25rem;
+  /* keep text from overlapping arrow */
 }
 
 .form-select:hover {

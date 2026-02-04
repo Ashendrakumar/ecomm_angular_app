@@ -1,185 +1,158 @@
-<div [class.container]="!showFilters()" [class.container-fluid]="!showFilters()">
-  <div class="row">
-    <!-- Filters Sidebar -->
-    @if (showFilters()) {
-      <aside class="col-md-3 mb-4" [class.d-md-block]="showFilters()">
-        <div class="card bg-dark-custom">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <h5 class="mb-0">Filters</h5>
-              @if (appliedFiltersCount() > 0) {
-                <span class="badge bg-primary ms-2"
-                  >{{ appliedFiltersCount() }} filter{{
-                    appliedFiltersCount() > 1 ? 's' : ''
-                  }}
-                  applied</span
-                >
-              }
-            </div>
-            <button
-              class="btn btn-sm btn-outline-secondary d-md-none"
-              (click)="toggleFilters()"
-              aria-label="Close filters"
-            >
-              ×
-            </button>
-          </div>
-          <div class="card-body">
-            <!-- Search Input -->
-            <div class="mb-4">
-              <label class="form-label"> Search </label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search products..."
-                [value]="searchInput()"
-                (input)="onSearchInput($event)"
-              />
-            </div>
+<div class="container-fluid product-listing-page">
+  <!-- Backdrop -->
+  @if (showFilters()) {
+  <div class="filters-backdrop" (click)="toggleFilters()" aria-hidden="true"></div>
+  }
 
-            <!-- Sort By -->
-            <div class="mb-4">
-              <label class="form-label">Sort By</label>
-              <select class="form-select" [value]="currentSort()" (change)="onSortChange($event)">
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Newest</option>
-              </select>
-            </div>
-
-            <!-- Price Range -->
-            <div class="mb-4">
-              <label class="form-label">Price Range</label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input
-                    type="number"
-                    class="form-control"
-                    placeholder="Min"
-                    [value]="filters().minPrice || ''"
-                    (input)="onPriceMinChange($event)"
-                  />
-                </div>
-                <div class="col-6">
-                  <input
-                    type="number"
-                    class="form-control"
-                    placeholder="Max"
-                    [value]="filters().maxPrice || ''"
-                    (input)="onPriceMaxChange($event)"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Brand Filter -->
-            <div class="mb-4">
-              <label class="form-label">Brand</label>
-              @for (brand of availableBrands(); track brand) {
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [id]="'brand-' + brand"
-                    [checked]="filters().brands?.includes(brand)"
-                    (change)="onBrandToggle(brand, $event)"
-                  />
-                  <label class="form-check-label" [for]="'brand-' + brand">
-                    {{ brand }}
-                  </label>
-                </div>
-              }
-            </div>
-
-            <!-- In Stock Only -->
-            <div class="mb-4">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="inStockOnly"
-                  [checked]="filters().inStockOnly"
-                  (change)="onInStockToggle($event)"
-                />
-                <label class="form-check-label" for="inStockOnly"> In Stock Only </label>
-              </div>
-            </div>
-
-            <!-- Clear Filters -->
-            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </aside>
-    }
-
-    <!-- Main Content -->
-    <main [class.col-md-9]="showFilters()" [class.col-12]="!showFilters()">
-      <!-- Search and Sort -->
-
-      <!-- Results Count -->
-      <div class="mb-3 d-flex justify-content-between align-items-center">
-        <p class="text-muted">Showing {{ products().length }} of {{ totalProducts() }} products</p>
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary flex-fill" (click)="toggleFilters()">
-            @if (showFilters()) {
-              Hide Filters
-            } @else {
-              Show Filters
-            }
-          </button>
+  <!-- Filters Sidebar -->
+  <aside class="filters-sidebar" [class.filters-sidebar--active]="showFilters()">
+    <div class="card bg-dark-custom h-100 border-0 rounded-0">
+      <div class="card-header d-flex justify-content-between align-items-center sticky-top">
+        <div class="d-flex align-items-center">
+          <h5 class="mb-0">Filters</h5>
           @if (appliedFiltersCount() > 0) {
-            <button class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">
-              Reset
-            </button>
+          <span class="badge bg-primary ms-2">{{ appliedFiltersCount() }} filter{{
+            appliedFiltersCount() > 1 ? 's' : ''
+            }}
+            applied</span>
           }
         </div>
+        <button class="btn btn-close btn-close-white" (click)="toggleFilters()" aria-label="Close filters"></button>
       </div>
+      <div class="card-body overflow-y-auto">
+        <!-- Search Input -->
+        <!-- <div class="mb-4">
+          <label class="form-label"> Search </label>
+          <input type="text" class="form-control" placeholder="Search products..." [value]="searchInput()"
+            (input)="onSearchInput($event)" />
+        </div> -->
 
-      <!-- Skeleton loader (initial load) -->
-      @if (isLoading() && products().length === 0) {
+        <!-- Sort By -->
+        <div class="mb-4">
+          <label class="form-label">Sort By</label>
+          <select class="form-select" [value]="currentSort()" (change)="onSortChange($event)">
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+
+        <!-- Price Range -->
+        <div class="mb-4">
+          <label class="form-label">Price Range</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <input type="number" class="form-control" placeholder="Min" [value]="filters().minPrice || ''"
+                (input)="onPriceMinChange($event)" />
+            </div>
+            <div class="col-6">
+              <input type="number" class="form-control" placeholder="Max" [value]="filters().maxPrice || ''"
+                (input)="onPriceMaxChange($event)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Brand Filter -->
+        <div class="mb-4">
+          <label class="form-label">Brand</label>
+          @for (brand of availableBrands(); track brand) {
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="'brand-' + brand"
+              [checked]="filters().brands?.includes(brand)" (change)="onBrandToggle(brand, $event)" />
+            <label class="form-check-label" [for]="'brand-' + brand">
+              {{ brand }}
+            </label>
+          </div>
+          }
+        </div>
+
+        <!-- In Stock Only -->
+        <div class="mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="inStockOnly" [checked]="filters().inStockOnly"
+              (change)="onInStockToggle($event)" />
+            <label class="form-check-label" for="inStockOnly"> In Stock Only </label>
+          </div>
+        </div>
+
+        <!-- Clear Filters -->
+        <button class="btn btn-outline-secondary w-100 mt-auto" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="row">
+    <!-- Main Content -->
+    <main class="col-12 px-md-4">
+      <div class="pt-1 mb-4">
+        <!-- Results Count & Toggle -->
+        <div class="card bg-dark-custom mb-3 border-0 shadow-sm plp-header-card">
+          <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+              <div class="search-input-wrapper">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" class="form-control plp-search-input" placeholder="Search products..."
+                  [value]="searchInput()" (input)="onSearchInput($event)" />
+              </div>
+              <div class="vertical-divider d-none d-sm-block"></div>
+              <p class="text-muted small mb-0 d-none d-md-block">
+                Showing <span class="text-gold fw-bold">{{ products().length }}</span> of {{ totalProducts() }} products
+              </p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary d-flex align-items-center gap-2 filter-toggle-btn"
+                (click)="toggleFilters()">
+                <span class="filter-icon">tune</span>
+                {{ showFilters() ? 'Hide Filters' : 'Filters' }}
+              </button>
+              <button class="btn btn-outline-secondary btn-sm px-3" [disabled]="!appliedFiltersCount()"
+                (click)="clearFilters()">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton loader (initial load) -->
+        @if (isLoading() && products().length === 0) {
         <app-skeleton-loader [skeletonCount]="12" />
-      }
+        }
 
-      <!-- Products Grid -->
-      @if (products().length > 0) {
+        <!-- Products Grid -->
+        @if (products().length > 0) {
         <div class="row g-4">
           @for (product of products(); track product.id) {
-            <div class="col-md-4 col-lg-3">
-              <app-product-card [product]="product" />
-            </div>
+          <div class="col-sm-6 col-md-4 col-lg-3">
+            <app-product-card [product]="product" />
+          </div>
           }
         </div>
 
         <!-- Infinite Scroll Trigger -->
         @if (hasMore()) {
-          <div #scrollTrigger class="text-center py-4">
-            @if (isLoading()) {
-              <div class="spinner-border text-gold" role="status">
-                <span class="visually-hidden">Loading more...</span>
-              </div>
-            } @else {
-              <!-- Spacer to ensure observer triggers early -->
-              <div style="height: 20px"></div>
-              <app-skeleton-loader [skeletonCount]="4" />
-            }
+        <div #scrollTrigger class="text-center py-5">
+          @if (isLoading()) {
+          <div class="spinner-border text-gold" role="status">
+            <span class="visually-hidden">Loading more...</span>
           </div>
-        }
-      }
-
-      <!-- Empty State -->
-      @if (!isLoading() && products().length === 0) {
-        <div class="container">
-          <app-no-data-found
-            title="No Products Found"
-            message="Try adjusting your filters or search criteria."
-            actionName="Clear Filters"
-            (actionEvent)="clearFilters()"
-            [isHandleClick]="true"
-          />
+          } @else {
+          <div style="height: 20px"></div>
+          <app-skeleton-loader [skeletonCount]="4" />
+          }
         </div>
-      }
+        }
+        }
+
+        <!-- Empty State -->
+        @if (!isLoading() && products().length === 0) {
+        <div class="text-center py-5">
+          <app-no-data-found title="No Products Found" message="Try adjusting your filters or search criteria."
+            actionName="Clear Filters" (actionEvent)="clearFilters()" [isHandleClick]="true" />
+        </div>
+        }
+      </div>
     </main>
   </div>
 </div>

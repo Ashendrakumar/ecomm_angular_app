@@ -1,6 +1,126 @@
+.product-listing-page {
+  position: relative;
+  min-height: calc(100vh - 70px);
+}
+
+.filters-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 350px;
+  height: 100vh;
+  z-index: 1200;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--dark-gray);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  visibility: hidden;
+
+  &.filters-sidebar--active {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .card {
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-header {
+    flex-shrink: 0;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--medium-gray);
+    background-color: var(--medium-gray);
+  }
+
+  .card-body {
+    flex-grow: 1;
+    padding: 1.5rem;
+  }
+}
+
+.filters-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1150;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.3s ease;
+}
+
+/* Ensure main content is padded nicely */
+main {
+  transition: padding 0.3s ease;
+}
+
+/* Main Content Header Styles */
+.plp-header-card {
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--dark-gray), #1a1a1a);
+}
+
+.search-input-wrapper {
+  position: relative;
+  min-width: 280px;
+  max-width: 450px;
+  flex-grow: 1;
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+    color: var(--accent-gold);
+    pointer-events: none;
+  }
+
+  .plp-search-input {
+    padding-left: 38px;
+    height: 42px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 0.95rem;
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.15);
+    }
+  }
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.filter-toggle-btn {
+
+  .filter-icon {
+    font-family: 'Material Symbols Outlined';
+    font-size: 1rem;
+  }
+}
+
 .card-header {
   border-radius: 16px 16px 0 0;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
 
+@media (max-width: 575.98px) {
+  .filters-sidebar {
+    width: 85%;
+  }
+
+  .search-input-wrapper {
+    min-width: 100%;
+  }
+}
