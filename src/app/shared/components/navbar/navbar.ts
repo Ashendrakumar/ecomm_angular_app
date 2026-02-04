@@ -21,8 +21,8 @@ import { NavbarUserItem } from '../navbar-user-item/navbar-user-item';
   encapsulation: ViewEncapsulation.None,
 })
 export class Navbar {
+  readonly productHeaderImage = 'assets/images/product_header.png';
   private readonly cartService = inject(CartService);
-
   // Computed signal for cart item count
   protected readonly cartItemCount = computed(() => {
     return this.cartService.cartItemCount();
