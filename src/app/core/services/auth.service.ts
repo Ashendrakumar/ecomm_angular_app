@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core';
 import { Observable, of, delay, tap } from 'rxjs';
 import { User, AuthState } from '../models/user.model';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * Service for authentication management
@@ -12,6 +13,8 @@ import { User, AuthState } from '../models/user.model';
 export class AuthService {
   private readonly API_DELAY = 300;
   private readonly STORAGE_KEY = 'logged-in-user';
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = computed(() => isPlatformBrowser(this.platformId));
   // Private signals - Initialize from localStorage if available
   private readonly _user = signal<User | null>(this.getStoredUser());
 
@@ -60,6 +63,9 @@ export class AuthService {
    * Get stored user from localStorage
    */
   private getStoredUser(): User | null {
+    if (!this.isBrowser()) {
+      return null;
+    }
     try {
       const storedUser = localStorage.getItem(this.STORAGE_KEY);
       return storedUser ? JSON.parse(storedUser) : null;

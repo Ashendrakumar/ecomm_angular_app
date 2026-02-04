@@ -143,7 +143,7 @@
       }
 
       <!-- Products Grid -->
-      @if (!isLoading() && products().length > 0) {
+      @if (products().length > 0) {
         <div class="row g-4">
           @for (product of products(); track product.id) {
             <div class="col-md-4 col-lg-3">
@@ -155,10 +155,15 @@
         <!-- Infinite Scroll Trigger -->
         @if (hasMore()) {
           <div #scrollTrigger class="text-center py-4">
-            <div class="spinner-border text-gold" role="status">
-              <span class="visually-hidden">Loading more...</span>
-            </div>
-            <app-skeleton-loader [skeletonCount]="8" />
+            @if (isLoading()) {
+              <div class="spinner-border text-gold" role="status">
+                <span class="visually-hidden">Loading more...</span>
+              </div>
+            } @else {
+              <!-- Spacer to ensure observer triggers early -->
+              <div style="height: 20px"></div>
+              <app-skeleton-loader [skeletonCount]="4" />
+            }
           </div>
         }
       }
