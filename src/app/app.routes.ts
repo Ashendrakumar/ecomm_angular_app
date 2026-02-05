@@ -1,7 +1,5 @@
 import { Routes } from '@angular/router';
-import { ProductDetail } from './features/pdp/product-detail/product-detail';
 import { Cart } from './features/cart/cart';
-import { ProductListing } from './features/plp/product-listing/product-listing';
 
 export const routes: Routes = [
   {
@@ -12,12 +10,14 @@ export const routes: Routes = [
   },
   {
     path: 'products',
-    component: ProductListing,
+    loadComponent: () =>
+      import('./features/plp/product-listing/product-listing').then((c) => c.ProductListing),
     title: 'Products | E-Commerce',
   },
   {
     path: 'products/:id',
-    component: ProductDetail,
+    loadComponent: () =>
+      import('./features/pdp/product-detail/product-detail').then((c) => c.ProductDetail),
     title: 'Product Detail | E-Commerce',
   },
   {
