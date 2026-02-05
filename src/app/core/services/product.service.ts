@@ -24,7 +24,7 @@ export class ProductService {
    * Get all product IDs
    * In production, this would make real HTTP call
    */
-  async getAllProjectIds(): Promise<string[]> {
+  async getAllProductIds(): Promise<string[]> {
     return MOCK_PRODUCTS.map((p) => String(p.id));
   }
 
