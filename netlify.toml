@@ -1,6 +1,6 @@
 [build]
   command = "npm run build-prod"
-  functions = ".netlify/functions"
+  functions = "netlify/functions"
   publish = "dist/ecomm_angular_app/browser"
 
 [[redirects]]
