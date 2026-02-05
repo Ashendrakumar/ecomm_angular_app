@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build-prod"
+  functions = "netlify/functions"
+  publish = "dist/ecomm_angular_app/browser"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
