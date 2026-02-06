@@ -13,7 +13,7 @@
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: var(--dark-gray);
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 10px 0 30px var(--overlay-bg);
   visibility: hidden;
 
   &.filters-sidebar--active {
@@ -46,7 +46,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--overlay-bg);
   z-index: 1150;
   backdrop-filter: blur(4px);
   transition: opacity 0.3s ease;
@@ -60,7 +60,8 @@ main {
 /* Main Content Header Styles */
 .plp-header-card {
   border-radius: 12px;
-  background: linear-gradient(145deg, var(--dark-gray), #1a1a1a);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .search-input-wrapper {
@@ -82,15 +83,15 @@ main {
   .plp-search-input {
     padding-left: 38px;
     height: 42px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 0.95rem;
 
     &:focus {
-      background-color: rgba(255, 255, 255, 0.08);
+      background-color: var(--input-bg);
       border-color: var(--accent-gold);
-      box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.15);
+      box-shadow: 0 0 0 3px var(--light-gold);
     }
   }
 }
@@ -98,7 +99,7 @@ main {
 .vertical-divider {
   width: 1px;
   height: 24px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--border-color);
 }
 
 .filter-toggle-btn {

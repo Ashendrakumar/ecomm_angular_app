@@ -1,6 +1,12 @@
 .navbar {
-  border-bottom: 1px solid var(--medium-gray);
-  z-index: 1030; /* above content, below bootstrap modals */
+  border: 0;
+  border-bottom: 1px;
+  border-color: var(--border-color);
+  z-index: 1030;
+  /* above content, below bootstrap modals */
+  max-height: var(--header-height);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .navbar-brand {
@@ -10,12 +16,14 @@
 
 .nav-link {
   position: relative;
-  color: rgba(255, 255, 255, 0.85);
-  transition: color 0.18s ease-in-out;
+  color: var(--primary-white);
+  opacity: 0.85;
+  transition: all 0.18s ease-in-out;
 }
 
 .nav-link:hover {
   color: var(--accent-gold);
+  opacity: 1;
 }
 
 /* Animated underline (hover) + persistent underline (active) */
@@ -51,9 +59,9 @@
 }
 
 .dropdown-menu {
-  background-color: var(--dark-gray);
-  border: 1px solid var(--medium-gray);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px var(--overlay-bg);
   // min-width: 220px;
   z-index: 9999;
 }
@@ -77,13 +85,14 @@
 }
 
 .dropdown-item-text {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--primary-white);
+  opacity: 0.85;
   padding: 0.5rem 1rem;
   display: block;
 }
 
 .dropdown-divider {
-  border-color: var(--medium-gray);
+  border-color: var(--border-color);
 }
 
 /* User icon alignment */

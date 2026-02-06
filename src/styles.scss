@@ -3,14 +3,42 @@
 
 /* Design Tokens */
 :root {
+  --accent-gold: #daa520;
+  --secondary-dark-yellow: color-mix(in srgb, var(--accent-gold), black 15%);
+  --light-gold: color-mix(in srgb, var(--accent-gold), transparent 85%);
+  --header-height: 64px
+}
+
+body.dark-theme {
   --primary-black: #0a0a0a;
   --primary-white: #ffffff;
-  --secondary-dark-yellow: #b8860b;
-  --accent-gold: #daa520;
-  --dark-gray: #1c1c1c;
-  --medium-gray: #2a2a2a;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --light-gold: rgba(218, 165, 32, 0.459);
+  --primary-white-rgb: 255, 255, 255;
+  --primary-black-rgb: 10, 10, 10;
+  --dark-gray: #121212;
+  --medium-gray: #1e1e1e;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --input-bg: #1e1e1e;
+  --card-bg: #181818;
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --success-color: #28a745;
+  --error-color: #ef4444;
+}
+
+body.light-theme {
+  --primary-black: #ffffffe3;
+  --primary-white: #121212;
+  --primary-white-rgb: 18, 18, 18;
+  --primary-black-rgb: 255, 255, 255;
+  --dark-gray: #fcfcfc;
+  --medium-gray: #f0f0f0;
+  --text-secondary: rgba(0, 0, 0, 0.6);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --card-bg: #ffffff;
+  --overlay-bg: rgba(255, 255, 255, 0.7);
+  --success-color: #198754;
+  --error-color: #dc3545;
 }
 
 /* Global Styles */
@@ -26,17 +54,18 @@ body {
   background-color: var(--primary-black);
   color: var(--primary-white);
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Bootstrap Theme Overrides */
 .form-check-input {
-  background-color: var(--dark-gray);
-  border-color: var(--medium-gray);
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
 }
 
 .form-check-input:focus {
   border-color: var(--accent-gold);
-  box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.25);
+  box-shadow: 0 0 0 0.25rem var(--light-gold);
 }
 
 .form-check-input:checked {
@@ -116,11 +145,11 @@ body {
   }
 
   &.btn-outline-secondary {
-    border-color: var(--medium-gray);
+    border-color: var(--border-color);
     color: var(--primary-white);
 
     &:disabled {
-      border-color: var(--medium-gray);
+      border-color: var(--border-color);
       color: var(--primary-white);
     }
 
@@ -128,27 +157,28 @@ body {
     &:focus,
     &:hover {
       background-color: var(--medium-gray);
-      border-color: var(--medium-gray);
+      border-color: var(--border-color);
       color: var(--primary-white);
     }
   }
 
   &.btn-outline-danger {
-    border-color: #dc3545;
-    color: #dc3545;
+    border-color: var(--error-color);
+    color: var(--error-color);
 
     &:hover {
-      background-color: #dc3545;
-      color: var(--primary-white);
+      background-color: var(--error-color);
+      color: var(--primary-black);
     }
   }
 }
 
 .form-control,
 .form-select {
-  background-color: var(--dark-gray);
-  border-color: var(--medium-gray);
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
   color: var(--primary-white);
+  transition: all 0.3s ease;
 
   &::placeholder {
     color: #999999 !important;
@@ -156,13 +186,13 @@ body {
   }
 
   &:focus {
-    background-color: var(--dark-gray);
+    background-color: var(--input-bg);
     border-color: var(--accent-gold);
     color: var(--primary-white);
-    box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.25);
+    box-shadow: 0 0 0 0.25rem var(--light-gold);
 
     &::placeholder {
-      color: #666666 !important;
+      opacity: 0.5;
     }
   }
 }
@@ -172,12 +202,12 @@ body {
   /* Make dropdown arrow visible on dark bg */
   color-scheme: dark;
   /* Ensure arrow + text are readable on dark backgrounds */
-  background-color: var(--dark-gray);
-  border-color: var(--medium-gray);
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
   color: var(--primary-white);
 
   /* Override Bootstrap's default arrow (too dark on dark theme) */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
@@ -191,21 +221,21 @@ body {
 
 .form-select:focus {
   border-color: var(--accent-gold);
-  box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.25);
+  box-shadow: 0 0 0 0.25rem var(--light-gold);
 }
 
 .form-select:disabled {
-  background-color: var(--dark-gray);
-  color: #777777;
+  background-color: var(--medium-gray);
+  color: var(--text-secondary);
 }
 
 .form-select option {
-  background-color: var(--dark-gray);
+  background-color: var(--card-bg);
   color: var(--primary-white);
 }
 
 select option {
-  background-color: var(--dark-gray);
+  background-color: var(--card-bg);
   color: var(--primary-white);
 }
 
@@ -220,14 +250,15 @@ select::placeholder {
 input:focus::placeholder,
 textarea:focus::placeholder,
 select:focus::placeholder {
-  color: #666666 !important;
+  opacity: 0.5;
 }
 
 .card {
-  background-color: var(--dark-gray);
-  border-color: var(--medium-gray);
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
   color: var(--primary-white);
   border-radius: 16px;
+  transition: all 0.3s ease;
 
   .card-body {
     color: var(--primary-white);
@@ -270,7 +301,7 @@ select:focus::placeholder {
     }
 
     &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.25);
+      box-shadow: 0 0 0 0.25rem var(--light-gold);
     }
   }
 
@@ -335,13 +366,13 @@ p {
 }
 
 small {
-  color: #cccccc;
+  color: var(--text-secondary);
 }
 
 /* Card Headers */
 .card-header {
   background-color: var(--medium-gray);
-  border-bottom-color: var(--medium-gray);
+  border-bottom: 1px solid var(--border-color);
   color: var(--primary-white);
   border-radius: 16px 16px 0 0 !important;
   padding-top: 0.75rem;
@@ -378,7 +409,7 @@ small {
     width: 100%;
     height: 100vh;
     z-index: 1050;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--overlay-bg);
     padding: 0;
 
     .card {
