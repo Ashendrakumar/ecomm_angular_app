@@ -1,8 +1,10 @@
 <div class="app-container">
-  <app-navbar />
-  <main class="container-fluid py-4">
-    <router-outlet />
-  </main>
+  @if (isAuthPages()) {
+    <app-auth-layout />
+  } @else {
+    <app-features-layout />
+  }
+
   <!-- Global Loading Spinner -->
   <app-loading-spinner />
 </div>

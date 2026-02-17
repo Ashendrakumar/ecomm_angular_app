@@ -1,0 +1,72 @@
+<div class="bg-animate">
+  <div class="circle" style="width: 400px; height: 400px; top: -100px; left: -100px"></div>
+  <div
+    class="circle"
+    style="width: 300px; height: 300px; bottom: -50px; right: -50px; animation-delay: -5s"
+  ></div>
+</div>
+
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <div class="mascot-section">
+      <div class="glow-circle"></div>
+      <div class="mascot-container">
+        <!-- <svg class="robot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle
+            cx="100"
+            cy="100"
+            r="80"
+            fill="none"
+            stroke="#00d2ff"
+            stroke-width="2"
+            stroke-dasharray="10 5"
+          />
+          <rect
+            x="60"
+            y="70"
+            width="80"
+            height="60"
+            rx="15"
+            fill="#1a1a2e"
+            stroke="#00d2ff"
+            stroke-width="4"
+          />
+          <circle cx="85" cy="95" r="8" fill="#00d2ff">
+            <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="115" cy="95" r="8" fill="#00d2ff">
+            <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <path
+            d="M80 115 Q100 125 120 115"
+            stroke="#00d2ff"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <path d="M100 50 L100 70" stroke="#6a11cb" stroke-width="4" />
+          <circle cx="100" cy="45" r="5" fill="#6a11cb" />
+        </svg> -->
+      </div>
+      <h3>APP NAME</h3>
+      <p class="mascot-subtitle">Descriptions</p>
+    </div>
+
+    <div class="form-section">
+      <div class="form-toggle">
+        <a type="button" routerLinkActive="active" routerLink="login">Login</a>
+        <a
+          type="button"
+          routerLinkActive="active"
+          routerLink="register"
+          (click)="toggleMode('login', $event)"
+          >Register</a
+        >
+      </div>
+
+      <div class="form-content">
+        <router-outlet />
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+.form-box {
+  // display: none;
+  // animation: slideIn 0.4s forwards;
+}
+
+.form-box.active {
+  // display: block;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.desc {
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 25px;
+}
+
+.input-groups {
+  margin-bottom: 15px;
+  label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+    color: var(--accent-gold);
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg, var(--light-gold), var(--accent-gold));
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -6,7 +6,8 @@
   --accent-gold: #daa520;
   --secondary-dark-yellow: color-mix(in srgb, var(--accent-gold), black 15%);
   --light-gold: color-mix(in srgb, var(--accent-gold), transparent 85%);
-  --header-height: 64px
+  --header-height: 64px;
+  // --glass: rgba(255, 255, 255, 0.1);
 }
 
 body.dark-theme {
@@ -54,7 +55,9 @@ body {
   background-color: var(--primary-black);
   color: var(--primary-white);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Bootstrap Theme Overrides */

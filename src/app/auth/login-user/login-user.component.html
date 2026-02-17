@@ -1,0 +1,25 @@
+<div id="login-form" class="form-box active">
+  <h2>Welcome Back!</h2>
+  <p class="desc">Please enter your credentials to access your profile.</p>
+  <form class="auth-form" [formGroup]="logInForm" (ngSubmit)="onSubmit()">
+    <div class="input-groups">
+      <label>Username</label>
+      <input
+        formControlName="email"
+        type="text"
+        class="form-control"
+        placeholder="Enter username"
+      />
+    </div>
+    <div class="input-groups">
+      <label>Password</label>
+      <input
+        formControlName="password"
+        class="form-control"
+        type="password"
+        placeholder="••••••••"
+      />
+    </div>
+    <button type="submit" class="btn-submit">Login</button>
+  </form>
+</div>

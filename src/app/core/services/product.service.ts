@@ -29,16 +29,25 @@ export class ProductService {
   }
 
   /**
+   * Get all products
+   * In production, this would make real HTTP call
+   */
+  getAllProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>('assets/data/mock-data.json'); //.pipe(delay(this.API_DELAY));
+  }
+
+  /**
    * Get products with filters, sorting, and pagination
    */
   getProducts(
+    allProducts: Product[],
     page: number = 1,
     pageSize: number = 12,
     filters?: ProductFilters,
     sort?: ProductSortOption,
   ): Observable<ProductListResponse> {
     // Simulate API call with delay
-    return of(this.filterAndSortProducts(MOCK_PRODUCTS, filters, sort, page, pageSize)).pipe(
+    return of(this.filterAndSortProducts(allProducts, filters, sort, page, pageSize)).pipe(
       delay(this.API_DELAY),
     );
   }

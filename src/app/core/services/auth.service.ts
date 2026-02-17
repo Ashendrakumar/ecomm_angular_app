@@ -30,9 +30,30 @@ export class AuthService {
   }));
 
   /**
+   * register user
+   */
+  register(userName: string, email: string, password: string): Observable<unknown> {
+    // Simulate API call
+    const user: User = {
+      id: '1',
+      email,
+      name: email.split('@')[0],
+    };
+
+    return of(user).pipe(
+      delay(this.API_DELAY),
+      tap((user) => {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+        this.setUser(user);
+      }),
+      // In production, handle errors
+    );
+  }
+
+  /**
    * Login user
    */
-  login(email: string, password: string): Observable<User> {
+  login(email: string, password: string): Observable<unknown> {
     // Simulate API call
     const user: User = {
       id: '1',
