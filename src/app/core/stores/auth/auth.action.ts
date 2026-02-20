@@ -1,6 +1,5 @@
-import { createAction, createActionGroup, props } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 import { AuthModel } from '../../models/auth.model';
-import { User } from '../../models/user.model';
 import { AuthMode } from './auth.state';
 
 export const ToggleAuthMode = createAction('[Auth] Toggle Mode', props<{ mode: AuthMode }>());

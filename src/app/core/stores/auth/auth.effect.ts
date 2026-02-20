@@ -12,7 +12,7 @@ export class AuthEffects {
 
   login$ = createEffect(() => {
     return this.actions$.pipe(
-      ofType(AUTH_ACTIONS.login),
+      ofType(AUTH_ACTIONS.login), // check for the login action type
       switchMap((action) =>
         this.authService.login(action.email, action.password).pipe(
           map((user) => AUTH_ACTIONS.authSuccess({ user: user as AuthModel })),

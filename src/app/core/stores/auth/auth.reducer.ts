@@ -5,7 +5,6 @@ import { initialState } from './auth.state';
 export const AUTH_REDUCER = createReducer(
   initialState,
   on(AUTH_ACTIONS.ToggleAuthMode, (state, { mode }) => {
-    console.log('state', state);
     return { ...state, mode: mode === 'login' ? 'register' : 'login' };
   }),
 
@@ -14,7 +13,6 @@ export const AUTH_REDUCER = createReducer(
   }),
 
   on(AUTH_ACTIONS.authSuccess, (state, { user }) => {
-    console.log('222222', user);
     return { ...state, loading: false, error: null, user: user };
   }),
 

@@ -1,5 +1,5 @@
 import { AuthModel } from '../../models/auth.model';
-
+//  Store
 export type AuthMode = 'login' | 'register';
 
 export interface AuthState {
