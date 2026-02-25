@@ -2,6 +2,7 @@ export enum FeatureRoutesEnum {
   Products = 'products',
   ProductDetail = 'products/:id',
   Cart = 'cart',
+  Checkout = 'checkout',
 }
 
 export enum AuthRoutesEnum {
@@ -15,6 +16,7 @@ export const featureRoutes: RoutesEnum[] = [
   FeatureRoutesEnum.Products,
   FeatureRoutesEnum.ProductDetail,
   FeatureRoutesEnum.Cart,
+  FeatureRoutesEnum.Checkout,
 ];
 
 export const authRoutes: RoutesEnum[] = [AuthRoutesEnum.Login, AuthRoutesEnum.Register];

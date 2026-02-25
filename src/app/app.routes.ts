@@ -40,6 +40,12 @@ export const routes: Routes = [
     title: 'Cart | E-Commerce',
   },
   {
+    path: FeatureRoutesEnum.Checkout,
+    loadComponent: () =>
+      import('./features/checkout/checkout.component').then((c) => c.CheckoutComponent),
+    title: 'Checkout | E-Commerce',
+  },
+  {
     path: '**',
     redirectTo: FeatureRoutesEnum.Products,
     title: 'Products | E-Commerce',
